@@ -93,6 +93,9 @@ d_c = d_a.T
 np.savetxt('G_dwarf_ws.txt', d_c, delimiter='\t', fmt='%.6f')
 
 import matplotlib.pyplot as plt
+import matplotlib as mpl
+mpl.rcParams['font.family'] = 'serif'
+mpl.rcParams['font.serif'] = ['DejaVu Serif'] 
 
 # Create a figure with 2 rows of subplots that share the x-axis.
 fig, axs = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
