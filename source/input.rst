@@ -1,7 +1,7 @@
 input module
 ============
 
-.. automodule:: input
+.. automodule:: EBM.input
    :members:
    :undoc-members:
    :show-inheritance:

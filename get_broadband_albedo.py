@@ -1,5 +1,4 @@
-def get_broadband_albedo(star):
-    """
+"""
     Calculate Broadband albedo using Broadband_albedo_Calculator from https://github.com/astrovidee/Broadband_albedo_Calculator
     This code returns broadband albedo parameters based on the stellar type.
     
@@ -11,7 +10,9 @@ def get_broadband_albedo(star):
               'Asnow', 'A_75', 'A_50', 'A_25', 'A_bi',
               'A_o', 'A_l', 'c_2k', 'c_1', 'c_2', 'c_5',
               'c_20', 'c_100', 'c_200', 'm'
-    """
+"""
+def get_broadband_albedo(star):
+
     if star == 'F':
         Asnow = 0.66833
         A_75  = 0.59884

@@ -1,9 +1,4 @@
-import numpy as np
-from get_broadband_albedo import get_broadband_albedo
-from albedo_seasonal import albedo_seasonal
-
-def sun(xi, obl, ecc, long, star):
-    """
+"""
     Computes insolation, orbital distance, and declination for an eccentric planet,
     using formulas from Berger/Pan (JAS, 35, 1978).
     
@@ -19,6 +14,12 @@ def sun(xi, obl, ecc, long, star):
         distance : 1D array of normalized orbital distances.
         delt     : 1D array of declination values (in degrees).
     """
+import numpy as np
+from get_broadband_albedo import get_broadband_albedo
+from albedo_seasonal import albedo_seasonal
+
+def sun(xi, obl, ecc, long, star):
+
     npts = len(xi)
     t1 = 2808 / 2.0754
     dr_conv = np.pi / 180.0

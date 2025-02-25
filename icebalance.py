@@ -1,7 +1,4 @@
-import numpy as np
-
-def icebalance(jmx, ice, notice, conduct, h, Tfrz, rprimew, Cw_delt, M, r, Diff_Op, B, nu_fw, fw, delx, Cw, W):
-    """
+"""
     Performs ice balance for the non-RGH case.
     
     Parameters:
@@ -28,7 +25,11 @@ def icebalance(jmx, ice, notice, conduct, h, Tfrz, rprimew, Cw_delt, M, r, Diff_
       L       : Land temperature array (length jmx)
       W_new   : Updated water temperature array (length jmx)
       Fnet    : Net flux array (flattened to 1D, length jmx)
-    """
+"""
+import numpy as np
+
+def icebalance(jmx, ice, notice, conduct, h, Tfrz, rprimew, Cw_delt, M, r, Diff_Op, B, nu_fw, fw, delx, Cw, W):
+
     # Initialize k and Fnet (both of length jmx)
     k = np.zeros(jmx)
     Fnet = np.zeros(jmx)

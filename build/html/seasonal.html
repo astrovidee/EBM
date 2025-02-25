@@ -47,7 +47,10 @@
               <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">EBM Modules</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">seasonal module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">seasonal module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#seasonal.seasonal_run"><code class="docutils literal notranslate"><span class="pre">seasonal_run()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="warmstart.html">warmstart module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="albedo_seasonal.html">albedo_seasonal module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="defaults.html">defaults module</a><ul>
@@ -76,11 +79,26 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="get_broadband_albedo.html">get_broadband_albedo module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="icebalance.html">icebalance module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="input.html">input module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="seasonal_setup.html">seasonal_setup module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="seasonal_solar.html">seasonal_solar module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_broadband_albedo.html">get_broadband_albedo module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="get_broadband_albedo.html#get_broadband_albedo.get_broadband_albedo"><code class="docutils literal notranslate"><span class="pre">get_broadband_albedo()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="icebalance.html">icebalance module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="icebalance.html#icebalance.icebalance"><code class="docutils literal notranslate"><span class="pre">icebalance()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="input.html">input module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="input.html#input.get_broadband_albedo"><code class="docutils literal notranslate"><span class="pre">get_broadband_albedo()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="seasonal_setup.html">seasonal_setup module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="seasonal_setup.html#seasonal_setup.get_setup_data"><code class="docutils literal notranslate"><span class="pre">get_setup_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="seasonal_solar.html">seasonal_solar module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="seasonal_solar.html#seasonal_solar.sun"><code class="docutils literal notranslate"><span class="pre">sun()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -112,6 +130,25 @@
              
   <section id="module-seasonal">
 <span id="seasonal-module"></span><h1>seasonal module<a class="headerlink" href="#module-seasonal" title="Link to this heading"></a></h1>
+<p>seasonal.py</p>
+<p>Main time-stepping routine for the seasonal Energy Balance Model (EBM).
+This routine is a translation of the MATLAB code by North &amp; Coakley with
+sea ice modifications. It uses:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>seasonal_setup (to initialize the domain, parameters, and state)</p></li>
+<li><p>seasonal_solar (function sun)</p></li>
+<li><p>albedo_seasonal (function albedo_seasonal)</p></li>
+<li><p>icebalance (function icebalance)</p></li>
+</ul>
+</div></blockquote>
+<p>All required parameters are assumed to be set in seasonal_setup and returned
+in the dictionary &quot;setup_data&quot;.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="seasonal.seasonal_run">
+<span class="sig-prename descclassname"><span class="pre">seasonal.</span></span><span class="sig-name descname"><span class="pre">seasonal_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/seasonal.html#seasonal_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#seasonal.seasonal_run" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 </section>
 
 
