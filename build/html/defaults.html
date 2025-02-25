@@ -50,7 +50,32 @@
 <li class="toctree-l2"><a class="reference internal" href="seasonal.html">seasonal module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="warmstart.html">warmstart module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="albedo_seasonal.html">albedo_seasonal module</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">defaults module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">defaults module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">defaults module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#defaults.jmxdef"><code class="docutils literal notranslate"><span class="pre">jmxdef</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#defaults.runlengthdef"><code class="docutils literal notranslate"><span class="pre">runlengthdef</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#defaults.scaleQdef"><code class="docutils literal notranslate"><span class="pre">scaleQdef</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#defaults.Adef"><code class="docutils literal notranslate"><span class="pre">Adef</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#defaults.Bdef"><code class="docutils literal notranslate"><span class="pre">Bdef</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#defaults.Dmagdef"><code class="docutils literal notranslate"><span class="pre">Dmagdef</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#defaults.Toffsetdef"><code class="docutils literal notranslate"><span class="pre">Toffsetdef</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#defaults.obldef"><code class="docutils literal notranslate"><span class="pre">obldef</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#defaults.eccdef"><code class="docutils literal notranslate"><span class="pre">eccdef</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#defaults.perdef"><code class="docutils literal notranslate"><span class="pre">perdef</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#defaults.star"><code class="docutils literal notranslate"><span class="pre">star</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#defaults.landdef"><code class="docutils literal notranslate"><span class="pre">landdef</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#defaults.casenamedef"><code class="docutils literal notranslate"><span class="pre">casenamedef</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#defaults.hadleyflagdef"><code class="docutils literal notranslate"><span class="pre">hadleyflagdef</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#defaults.albedoflagdef"><code class="docutils literal notranslate"><span class="pre">albedoflagdef</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#defaults.ice_modeldef"><code class="docutils literal notranslate"><span class="pre">ice_modeldef</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#defaults.coldstartdef"><code class="docutils literal notranslate"><span class="pre">coldstartdef</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#defaults.Cldef"><code class="docutils literal notranslate"><span class="pre">Cldef</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#defaults.Cwdef"><code class="docutils literal notranslate"><span class="pre">Cwdef</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#defaults.nudef"><code class="docutils literal notranslate"><span class="pre">nudef</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="get_broadband_albedo.html">get_broadband_albedo module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="icebalance.html">icebalance module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="input.html">input module</a></li>
@@ -87,6 +112,231 @@
              
   <section id="module-defaults">
 <span id="defaults-module"></span><h1>defaults module<a class="headerlink" href="#module-defaults" title="Link to this heading"></a></h1>
+<section id="id1">
+<h2>defaults module<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>This module provides default configuration settings for the EBM project.
+It includes parameters for simulations, constants, and initial settings.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="defaults.jmxdef">
+<span class="sig-prename descclassname"><span class="pre">defaults.</span></span><span class="sig-name descname"><span class="pre">jmxdef</span></span><a class="headerlink" href="#defaults.jmxdef" title="Link to this definition"></a></dt>
+<dd><p>The default number of grid cells.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="defaults.runlengthdef">
+<span class="sig-prename descclassname"><span class="pre">defaults.</span></span><span class="sig-name descname"><span class="pre">runlengthdef</span></span><a class="headerlink" href="#defaults.runlengthdef" title="Link to this definition"></a></dt>
+<dd><p>The default length of the simulation run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="defaults.scaleQdef">
+<span class="sig-prename descclassname"><span class="pre">defaults.</span></span><span class="sig-name descname"><span class="pre">scaleQdef</span></span><a class="headerlink" href="#defaults.scaleQdef" title="Link to this definition"></a></dt>
+<dd><p>The default scale factor for Q.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="defaults.Adef">
+<span class="sig-prename descclassname"><span class="pre">defaults.</span></span><span class="sig-name descname"><span class="pre">Adef</span></span><a class="headerlink" href="#defaults.Adef" title="Link to this definition"></a></dt>
+<dd><p>Default value for parameter A.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="defaults.Bdef">
+<span class="sig-prename descclassname"><span class="pre">defaults.</span></span><span class="sig-name descname"><span class="pre">Bdef</span></span><a class="headerlink" href="#defaults.Bdef" title="Link to this definition"></a></dt>
+<dd><p>Default value for parameter B.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="defaults.Dmagdef">
+<span class="sig-prename descclassname"><span class="pre">defaults.</span></span><span class="sig-name descname"><span class="pre">Dmagdef</span></span><a class="headerlink" href="#defaults.Dmagdef" title="Link to this definition"></a></dt>
+<dd><p>Default value for D magnitude.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="defaults.Toffsetdef">
+<span class="sig-prename descclassname"><span class="pre">defaults.</span></span><span class="sig-name descname"><span class="pre">Toffsetdef</span></span><a class="headerlink" href="#defaults.Toffsetdef" title="Link to this definition"></a></dt>
+<dd><p>Default temperature offset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="defaults.obldef">
+<span class="sig-prename descclassname"><span class="pre">defaults.</span></span><span class="sig-name descname"><span class="pre">obldef</span></span><a class="headerlink" href="#defaults.obldef" title="Link to this definition"></a></dt>
+<dd><p>Default oblateness value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="defaults.eccdef">
+<span class="sig-prename descclassname"><span class="pre">defaults.</span></span><span class="sig-name descname"><span class="pre">eccdef</span></span><a class="headerlink" href="#defaults.eccdef" title="Link to this definition"></a></dt>
+<dd><p>Default eccentricity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="defaults.perdef">
+<span class="sig-prename descclassname"><span class="pre">defaults.</span></span><span class="sig-name descname"><span class="pre">perdef</span></span><a class="headerlink" href="#defaults.perdef" title="Link to this definition"></a></dt>
+<dd><p>Default period.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="defaults.star">
+<span class="sig-prename descclassname"><span class="pre">defaults.</span></span><span class="sig-name descname"><span class="pre">star</span></span><a class="headerlink" href="#defaults.star" title="Link to this definition"></a></dt>
+<dd><p>Default star type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="defaults.landdef">
+<span class="sig-prename descclassname"><span class="pre">defaults.</span></span><span class="sig-name descname"><span class="pre">landdef</span></span><a class="headerlink" href="#defaults.landdef" title="Link to this definition"></a></dt>
+<dd><p>Default land configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="defaults.casenamedef">
+<span class="sig-prename descclassname"><span class="pre">defaults.</span></span><span class="sig-name descname"><span class="pre">casenamedef</span></span><a class="headerlink" href="#defaults.casenamedef" title="Link to this definition"></a></dt>
+<dd><p>Default case name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="defaults.hadleyflagdef">
+<span class="sig-prename descclassname"><span class="pre">defaults.</span></span><span class="sig-name descname"><span class="pre">hadleyflagdef</span></span><a class="headerlink" href="#defaults.hadleyflagdef" title="Link to this definition"></a></dt>
+<dd><p>Default flag for Hadley circulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="defaults.albedoflagdef">
+<span class="sig-prename descclassname"><span class="pre">defaults.</span></span><span class="sig-name descname"><span class="pre">albedoflagdef</span></span><a class="headerlink" href="#defaults.albedoflagdef" title="Link to this definition"></a></dt>
+<dd><p>Default flag for albedo setting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="defaults.ice_modeldef">
+<span class="sig-prename descclassname"><span class="pre">defaults.</span></span><span class="sig-name descname"><span class="pre">ice_modeldef</span></span><a class="headerlink" href="#defaults.ice_modeldef" title="Link to this definition"></a></dt>
+<dd><p>Default ice model parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="defaults.coldstartdef">
+<span class="sig-prename descclassname"><span class="pre">defaults.</span></span><span class="sig-name descname"><span class="pre">coldstartdef</span></span><a class="headerlink" href="#defaults.coldstartdef" title="Link to this definition"></a></dt>
+<dd><p>Default cold start parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="defaults.Cldef">
+<span class="sig-prename descclassname"><span class="pre">defaults.</span></span><span class="sig-name descname"><span class="pre">Cldef</span></span><a class="headerlink" href="#defaults.Cldef" title="Link to this definition"></a></dt>
+<dd><p>Default land heat capacity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="defaults.Cwdef">
+<span class="sig-prename descclassname"><span class="pre">defaults.</span></span><span class="sig-name descname"><span class="pre">Cwdef</span></span><a class="headerlink" href="#defaults.Cwdef" title="Link to this definition"></a></dt>
+<dd><p>Default water heat capacity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="defaults.nudef">
+<span class="sig-prename descclassname"><span class="pre">defaults.</span></span><span class="sig-name descname"><span class="pre">nudef</span></span><a class="headerlink" href="#defaults.nudef" title="Link to this definition"></a></dt>
+<dd><p>Default value for nu.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 </section>
 
 

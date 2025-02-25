@@ -26,13 +26,14 @@ extensions = [
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../EBM'))
+sys.path.insert(0, os.path.abspath('/Users/astrovidee/Dropbox/EBM'))
 
 
 autodoc_mock_imports = [
-    "albedo_seasonal", "defaults", "get_broadband_albedo", "icebalance",
+    "albedo_seasonal", "get_broadband_albedo", "icebalance",
     "input", "seasonal", "seasonal_setup", "seasonal_solar", "warmstart"
 ]
+
 
 templates_path = ['_templates']
 exclude_patterns = []
