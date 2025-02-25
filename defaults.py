@@ -1,3 +1,33 @@
+"""
+defaults module
+===============
+
+This module provides default configuration settings for the EBM project.
+It includes parameters for simulations, constants, and initial settings.
+
+Attributes:
+    jmxdef (int): The default number of grid cells.
+    runlengthdef (int): The default length of the simulation run.
+    scaleQdef (float): The default scale factor for Q.
+    Adef (float): Default value for parameter A.
+    Bdef (float): Default value for parameter B.
+    Dmagdef (float): Default value for D magnitude.
+    Toffsetdef (int): Default temperature offset.
+    obldef (int): Default oblateness value.
+    eccdef (float): Default eccentricity.
+    perdef (float): Default period.
+    star (str): Default star type.
+    landdef (str): Default land configuration.
+    casenamedef (str): Default case name.
+    hadleyflagdef (float): Default flag for Hadley circulation.
+    albedoflagdef (float): Default flag for albedo setting.
+    ice_modeldef (float): Default ice model parameter.
+    coldstartdef (float): Default cold start parameter.
+    Cldef (float): Default land heat capacity.
+    Cwdef (float): Default water heat capacity.
+    nudef (int): Default value for nu.
+"""
+
 jmxdef = 60
 runlengthdef = 100
 scaleQdef = 1.0
