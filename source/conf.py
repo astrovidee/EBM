@@ -29,6 +29,12 @@ import sys
 sys.path.insert(0, os.path.abspath('/Users/astrovidee/Dropbox/EBM'))
 
 
+autodoc_mock_imports = [
+     "get_broadband_albedo", "icebalance",
+    "input", "seasonal", "seasonal_setup", "seasonal_solar", "warmstart"
+]
+
+
 templates_path = ['_templates']
 exclude_patterns = []
 

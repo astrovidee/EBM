@@ -1,7 +1,7 @@
 seasonal module
 ===============
 
-.. automodule:: seasonal
+.. automodule:: EBM.seasonal
    :members:
    :undoc-members:
    :show-inheritance:
