@@ -1,7 +1,7 @@
 icebalance module
 =================
 
-.. automodule:: EBM.icebalance
+.. automodule:: icebalance
    :members:
    :undoc-members:
    :show-inheritance:

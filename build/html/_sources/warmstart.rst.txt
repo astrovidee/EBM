@@ -1,7 +1,7 @@
 warmstart module
 ================
 
-.. automodule:: EBM.warmstart
+.. automodule:: warmstart
    :members:
    :undoc-members:
    :show-inheritance:

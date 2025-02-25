@@ -1,7 +1,7 @@
 defaults module
 ===============
 
-.. automodule:: EBM.defaults
+.. automodule:: defaults
    :members:
    :undoc-members:
    :show-inheritance:

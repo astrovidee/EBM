@@ -1,3 +1,38 @@
+"""
+warmstart module
+================
+
+This module performs a warm start simulation for the Energy Balance Model (EBM) project.
+It calculates two primary metrics for a range of instellation (scaleQ) values:
+  - Mean surface temperature (Tg)
+  - Mean ice line latitude
+
+The simulation uses the following process:
+  1. **Initialization:**  
+     - Normalizes the stellar parameter from the defaults.
+     - Retrieves setup data (grid resolution, simulation time step, and weighting factors)
+       using `get_setup_data` from the `seasonal_setup` module.
+  2. **Warm Start Simulation:**  
+     - Runs an initial seasonal simulation using `seasonal_run` to obtain baseline outputs.
+  3. **Parameter Sweep:**  
+     - Iterates over a range of `scaleQ` values (decreasing from 1.35 in steps of 0.05).
+     - For each value, updates the defaults and runs the seasonal simulation.
+     - Computes a mean temperature metric using weighted contributions from land and water.
+     - Determines the ice line latitude by interpolating water temperature data (for temperatures 
+       around the threshold of -2.013°C) for the northern hemisphere.
+  4. **Output:**  
+     - Aggregates the `scaleQ`, mean ice line latitude, and mean temperature values.
+     - Saves these values to a text file (`G_dwarf_ws.txt`) with tab delimiters.
+     - Generates plots showing the relationship between `scaleQ` and the computed metrics.
+
+**Requirements:**
+  - NumPy, Matplotlib, SciPy
+  - Custom modules: `defaults`, `seasonal_setup`, and `seasonal`
+
+**Usage:**
+  Simply run the script to perform the simulation, save the results, and display the plots.
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
@@ -92,7 +127,6 @@ d_c = d_a.T
 # Save to a text file with tab delimiters and 6-digit precision.
 np.savetxt('G_dwarf_ws.txt', d_c, delimiter='\t', fmt='%.6f')
 
-import matplotlib.pyplot as plt
 import matplotlib as mpl
 mpl.rcParams['font.family'] = 'serif'
 mpl.rcParams['font.serif'] = ['DejaVu Serif'] 
@@ -115,4 +149,3 @@ axs[1].grid(True)
 
 plt.tight_layout()
 plt.show()
-
