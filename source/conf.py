@@ -29,6 +29,10 @@ import sys
 sys.path.insert(0, os.path.abspath('../EBM'))
 
 
+autodoc_mock_imports = [
+    "albedo_seasonal", "defaults", "get_broadband_albedo", "icebalance",
+    "input", "seasonal", "seasonal_setup", "seasonal_solar", "warmstart"
+]
 
 templates_path = ['_templates']
 exclude_patterns = []
@@ -52,3 +56,5 @@ autodoc_typehints = 'description'
 autodoc_member_order = 'bysource'
 
 html_show_sourcelink = True
+suppress_warnings = ['autodoc.mock']
+

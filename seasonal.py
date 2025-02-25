@@ -48,7 +48,7 @@ from icebalance import icebalance
 
 # Normalize star and get broadband albedo parameters.
 star = defaults['star'].strip().upper()
-print("Star value:", repr(star))
+
 broadband_params = get_broadband_albedo(star)
 A_o = broadband_params['A_o']
 A_l = broadband_params['A_l']

@@ -17,6 +17,9 @@ def albedo_seasonal(L, W, x, A_o, A_l, A_50):
         alb_l : Recalculated albedo for land
         alb_w : Recalculated albedo for water
     """
+
+    
+
     # Compute albedo based on a Legendre polynomial-like term (3*x^2 - 1)
     alb_w = A_o + 0.08 * (3 * x**2 - 1) / 2 - 0.05
     alb_l = A_l + 0.08 * (3 * x**2 - 1) / 2 + 0.05
