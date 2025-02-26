@@ -51,7 +51,10 @@
 <li class="toctree-l3"><a class="reference internal" href="seasonal.html#seasonal.seasonal_run"><code class="docutils literal notranslate"><span class="pre">seasonal_run()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">warmstart module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">warmstart module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">warmstart module</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="albedo_seasonal.html">albedo_seasonal module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="albedo_seasonal.html#id1">albedo_seasonal module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="albedo_seasonal.html#albedo_seasonal.albedo_seasonal"><code class="docutils literal notranslate"><span class="pre">albedo_seasonal()</span></code></a></li>
@@ -132,8 +135,53 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="warmstart-module">
-<h1>warmstart module<a class="headerlink" href="#warmstart-module" title="Link to this heading"></a></h1>
+  <section id="module-warmstart">
+<span id="warmstart-module"></span><h1>warmstart module<a class="headerlink" href="#module-warmstart" title="Link to this heading"></a></h1>
+<section id="id1">
+<h2>warmstart module<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>This module performs a warm start simulation for the Energy Balance Model (EBM) project.
+It calculates two primary metrics for a range of instellation (scaleQ) values:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Mean surface temperature (Tg)</p></li>
+<li><p>Mean ice line latitude</p></li>
+</ul>
+</div></blockquote>
+<dl>
+<dt>The simulation uses the following process:</dt><dd><ol class="arabic">
+<li><p><strong>Initialization:</strong>
+- Normalizes the stellar parameter from the defaults.
+- Retrieves setup data (grid resolution, simulation time step, and weighting factors)</p>
+<blockquote>
+<div><p>using <cite>get_setup_data</cite> from the <cite>seasonal_setup</cite> module.</p>
+</div></blockquote>
+</li>
+<li><p><strong>Warm Start Simulation:</strong>
+- Runs an initial seasonal simulation using <cite>seasonal_run</cite> to obtain baseline outputs.</p></li>
+<li><p><strong>Parameter Sweep:</strong>
+- Iterates over a range of <cite>scaleQ</cite> values (decreasing from 1.35 in steps of 0.05).
+- For each value, updates the defaults and runs the seasonal simulation.
+- Computes a mean temperature metric using weighted contributions from land and water.
+- Determines the ice line latitude by interpolating water temperature data (for temperatures</p>
+<blockquote>
+<div><p>around the threshold of -2.013°C) for the northern hemisphere.</p>
+</div></blockquote>
+</li>
+<li><p><strong>Output:</strong>
+- Aggregates the <cite>scaleQ</cite>, mean ice line latitude, and mean temperature values.
+- Saves these values to a text file (<cite>G_dwarf_ws.txt</cite>) with tab delimiters.
+- Generates plots showing the relationship between <cite>scaleQ</cite> and the computed metrics.</p></li>
+</ol>
+</dd>
+<dt><strong>Requirements:</strong></dt><dd><ul class="simple">
+<li><p>NumPy, Matplotlib, SciPy</p></li>
+<li><p>Custom modules: <cite>defaults</cite>, <cite>seasonal_setup</cite>, and <cite>seasonal</cite></p></li>
+</ul>
+</dd>
+<dt><strong>Usage:</strong></dt><dd><p>Simply run the script to perform the simulation, save the results, and display the plots.</p>
+</dd>
+</dl>
+</section>
 </section>
 
 
