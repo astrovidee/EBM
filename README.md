@@ -4,3 +4,4 @@ This is a Python version of the energy balance model originally coded by Cecilia
 This repository contains the Energy Balance Model (EBM) code and documentation.
 
 You can view the complete documentation [EBM Documentation](https://astrovidee.github.io/EBM/).
+[![Documentation](https://img.shields.io/badge/Documentation-007ACC)](https://astrovidee.github.io/EBM/)
