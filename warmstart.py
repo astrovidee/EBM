@@ -30,7 +30,9 @@ The simulation uses the following process:
   - Custom modules: `defaults`, `seasonal_setup`, and `seasonal`
 
 **Usage:**
-  Simply run the script to perform the simulation, save the results, and display the plots.
+  Simply run the script to perform the simulation and save the results. The default is set to warmstart simulation. 
+  You can change coldstartdef=1 in defaults.py to get a outputs for coldstart case. Then, you can combine the runs 
+  from warmstart and coldstart to plot a climate hysteresis curve!
 """
 
 import numpy as np
