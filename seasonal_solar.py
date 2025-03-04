@@ -1,6 +1,6 @@
 """
     Computes insolation, orbital distance, and declination for an eccentric planet,
-    using formulas from Berger/Pan (JAS, 35, 1978).
+    using formulas from Berger/Pan (JAS, 35, 1978). Russell Deitrick coded this up in the Matlab version of the EBM.
     
     Parameters:
         xi   : 1D array of sin(latitude) values.
