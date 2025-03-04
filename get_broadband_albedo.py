@@ -1,5 +1,5 @@
 """
-    Calculate Broadband albedo using Broadband_albedo_Calculator from https://github.com/astrovidee/Broadband_albedo_Calculator
+    Calculate Broadband albedo using Broadband_albedo_Calculator from https://github.com/astrovidee/Broadband_albedo_Calculator.
     This code returns broadband albedo parameters based on the stellar type.
     
     Parameters:
