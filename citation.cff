@@ -4,8 +4,8 @@ title: "EBM"
 authors:
   - family-names: "Venkatesan"
     given-names: "Vidya"
-    affiliation: "UC Irvine"
+    affiliation: "University of California, Irvine"
 version: "1.0.0"
-doi: 10.5281/zenodo.1234567
+doi: 10.5281/zenodo.16813585
 date-released: 2025-08-12
 url: "https://github.com/astrovidee/EBM"
