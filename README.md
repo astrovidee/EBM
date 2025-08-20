@@ -11,6 +11,7 @@ This repository contains the Energy Balance Model (EBM) code and documentation.
 ---
 
 You can view the complete documentation [here](https://astrovidee.github.io/EBM/). The zenodo link for the repository can be found [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.16813585.svg)](https://doi.org/10.5281/zenodo.16813585)
-![Logo](ebm_diagram.png)
+![](https://raw.githubusercontent.com/astrovidee/EBM/main/ebm.png)
+
 
 
