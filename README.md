@@ -14,6 +14,6 @@ You can view the complete documentation [here](https://astrovidee.github.io/EBM/
 
 
 
-![](EBM.png)
+![](EBM_new.png)
 
 
