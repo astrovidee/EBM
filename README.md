@@ -14,5 +14,6 @@ You can view the complete documentation [here](https://astrovidee.github.io/EBM/
 
 
 
-![Energy Balance Model Diagram](https://raw.githubusercontent.com/astrovidee/EBM/main/figures/ebm.png)
+![Energy Balance Model Diagram](EBM.png)
+
 
