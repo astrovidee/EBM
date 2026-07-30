@@ -718,9 +718,9 @@ def seasonal_run(cfg=None):
     }
 
 
-# =========================================================
+
 # DIAGNOSTICS
-# =========================================================
+
 def annual_means(results):
     return final_year_annual_means(results)
 
@@ -870,9 +870,9 @@ def warmstart_sweep(cfg=None, scaleQ_values=None, save_txt=False, make_plot=True
     }
 
 
-# =========================================================
+
 # EXAMPLE MAIN
-# =========================================================
+
 def main():
     # Run EBM with warmstart sweep over scaleQ values
     print("Running EBM warmstart sweep over scaleQ values...")
