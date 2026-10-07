@@ -1,0 +1,451 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Function reference &mdash; EBM 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=6c54ea58" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=fc837d61"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Comparison with Venkatesan et al. (2025)" href="validation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            EBM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#a-first-run">A first run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#reading-the-results">Reading the results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#warm-and-cold-starts">Warm and cold starts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#the-built-in-example">The built-in example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="settings.html">Settings</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#planet-and-star">Planet and star</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#land-configurations">Land configurations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#climate-physics">Climate physics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#co2-ice">CO2 ice</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#run-control">Run control</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="co2.html">CO2 ice</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="co2.html#running-a-case">Running a case</a></li>
+<li class="toctree-l2"><a class="reference internal" href="co2.html#how-it-works">How it works</a></li>
+<li class="toctree-l2"><a class="reference internal" href="co2.html#why-the-spiegel-law-is-needed">Why the Spiegel law is needed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="co2.html#the-latitude-by-latitude-option">The latitude by latitude option</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Comparison with Venkatesan et al. (2025)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="validation.html#circular-orbits">Circular orbits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html#eccentricity-0-5">Eccentricity 0.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html#known-differences">Known differences</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Function reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#running-the-model">Running the model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#EBM_one_file.seasonal_run"><code class="docutils literal notranslate"><span class="pre">seasonal_run()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#EBM_one_file.co2_run"><code class="docutils literal notranslate"><span class="pre">co2_run()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#EBM_one_file.warmstart_sweep"><code class="docutils literal notranslate"><span class="pre">warmstart_sweep()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#summarizing-a-run">Summarizing a run</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#EBM_one_file.final_year_annual_means"><code class="docutils literal notranslate"><span class="pre">final_year_annual_means()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#EBM_one_file.mean_iceline"><code class="docutils literal notranslate"><span class="pre">mean_iceline()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#EBM_one_file.co2_ice_fraction"><code class="docutils literal notranslate"><span class="pre">co2_ice_fraction()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#inputs">Inputs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#EBM_one_file.get_broadband_albedo"><code class="docutils literal notranslate"><span class="pre">get_broadband_albedo()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#EBM_one_file.get_co2_albedo"><code class="docutils literal notranslate"><span class="pre">get_co2_albedo()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#EBM_one_file.build_land_fraction"><code class="docutils literal notranslate"><span class="pre">build_land_fraction()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#EBM_one_file.sun"><code class="docutils literal notranslate"><span class="pre">sun()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#EBM_one_file.olr_spiegel"><code class="docutils literal notranslate"><span class="pre">olr_spiegel()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#internals">Internals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#EBM_one_file.build_setup"><code class="docutils literal notranslate"><span class="pre">build_setup()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#EBM_one_file.albedo_seasonal"><code class="docutils literal notranslate"><span class="pre">albedo_seasonal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#EBM_one_file.icebalance"><code class="docutils literal notranslate"><span class="pre">icebalance()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#EBM_one_file.olr_constant"><code class="docutils literal notranslate"><span class="pre">olr_constant()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">EBM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Function reference</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="function-reference">
+<h1>Function reference<a class="headerlink" href="#function-reference" title="Link to this heading"></a></h1>
+<p>Everything is in the module <code class="docutils literal notranslate"><span class="pre">EBM_one_file</span></code>.</p>
+<section id="running-the-model">
+<h2>Running the model<a class="headerlink" href="#running-the-model" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="EBM_one_file.seasonal_run">
+<span class="sig-prename descclassname"><span class="pre">EBM_one_file.</span></span><span class="sig-name descname"><span class="pre">seasonal_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/EBM_one_file.html#seasonal_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#EBM_one_file.seasonal_run" title="Link to this definition"></a></dt>
+<dd><p>Run the model for one configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cfg</strong> – Dictionary of settings. Any setting left out takes its value from
+<code class="docutils literal notranslate"><span class="pre">DEFAULTS</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary. <code class="docutils literal notranslate"><span class="pre">'Lann'</span></code>, <code class="docutils literal notranslate"><span class="pre">'Wann'</span></code> and <code class="docutils literal notranslate"><span class="pre">'h_ann'</span></code> are the land
+temperature, ocean temperature (deg C) and sea ice thickness (m) for the
+final year, with shape (latitudes, 360). <code class="docutils literal notranslate"><span class="pre">'alb_l_ann'</span></code> and
+<code class="docutils literal notranslate"><span class="pre">'alb_w_ann'</span></code> are the land and ocean albedo for the final year.
+<code class="docutils literal notranslate"><span class="pre">'L_out'</span></code>, <code class="docutils literal notranslate"><span class="pre">'W_out'</span></code> and <code class="docutils literal notranslate"><span class="pre">'h_out'</span></code> are the same fields for the whole
+run, <code class="docutils literal notranslate"><span class="pre">'final_L'</span></code>, <code class="docutils literal notranslate"><span class="pre">'final_W'</span></code> and <code class="docutils literal notranslate"><span class="pre">'final_h'</span></code> are the last time
+step, and <code class="docutils literal notranslate"><span class="pre">'setup'</span></code> holds the grid and inputs (see <a class="reference internal" href="#EBM_one_file.build_setup" title="EBM_one_file.build_setup"><code class="xref py py-func docutils literal notranslate"><span class="pre">build_setup()</span></code></a>).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="EBM_one_file.co2_run">
+<span class="sig-prename descclassname"><span class="pre">EBM_one_file.</span></span><span class="sig-name descname"><span class="pre">co2_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'warm'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/EBM_one_file.html#co2_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#EBM_one_file.co2_run" title="Link to this definition"></a></dt>
+<dd><p>Run one case with the CO2 condensation test on the global mean temperature.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">olr='spiegel'</span></code>, this is the procedure that reproduces the CO2 results
+of Venkatesan et al. (2025). With the default linear law the model cannot
+cool to the default <code class="docutils literal notranslate"><span class="pre">co2_Tcond</span></code>, so no CO2 ice will be found.</p>
+<p>For a warm start, the model first runs with water ice only. If the global
+annual mean surface temperature is at or below <code class="docutils literal notranslate"><span class="pre">co2_Tcond</span></code>, CO2 is taken to
+have condensed, and the case is run again with the CO2 ice albedo on every
+frozen surface.</p>
+<p>For a cold start, the model first runs from a frozen start with the CO2 ice
+albedo on every frozen surface. If the global annual mean temperature is above
+<code class="docutils literal notranslate"><span class="pre">co2_Tcond</span></code>, the CO2 ice is taken to have sublimated, and the case is run
+again with water ice only.</p>
+<p>The CO2 ice runs use the sea ice constant <code class="docutils literal notranslate"><span class="pre">co2_Lfice</span></code> and the water ice runs
+use <code class="docutils literal notranslate"><span class="pre">Lfice</span></code>, as in the original MATLAB model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cfg</strong> – Dictionary of settings. Any setting left out takes its value from
+<code class="docutils literal notranslate"><span class="pre">DEFAULTS</span></code>.</p></li>
+<li><p><strong>start</strong> – <code class="docutils literal notranslate"><span class="pre">'warm'</span></code> or <code class="docutils literal notranslate"><span class="pre">'cold'</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A pair <code class="docutils literal notranslate"><span class="pre">(results,</span> <span class="pre">has_co2_ice)</span></code> with the results of the final run, as
+returned by <a class="reference internal" href="#EBM_one_file.seasonal_run" title="EBM_one_file.seasonal_run"><code class="xref py py-func docutils literal notranslate"><span class="pre">seasonal_run()</span></code></a>, and whether the planet ends with CO2 ice.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="EBM_one_file.warmstart_sweep">
+<span class="sig-prename descclassname"><span class="pre">EBM_one_file.</span></span><span class="sig-name descname"><span class="pre">warmstart_sweep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaleQ_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_txt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">make_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/EBM_one_file.html#warmstart_sweep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#EBM_one_file.warmstart_sweep" title="Link to this definition"></a></dt>
+<dd><p>Run the model from a warm start for a series of stellar fluxes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cfg</strong> – Dictionary of settings.</p></li>
+<li><p><strong>scaleQ_values</strong> – Fluxes relative to the default. If left out, 1.30 down to
+0.30 in steps of 0.05.</p></li>
+<li><p><strong>save_txt</strong> – Also write the results to <code class="docutils literal notranslate"><span class="pre">G_dwarf_ws.txt</span></code>.</p></li>
+<li><p><strong>make_plot</strong> – Show mean temperature and ice line against flux.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary of arrays with the keys <code class="docutils literal notranslate"><span class="pre">'scaleQ'</span></code>, <code class="docutils literal notranslate"><span class="pre">'mean_iceline'</span></code>
+(degrees) and <code class="docutils literal notranslate"><span class="pre">'mean_Tg'</span></code> (global mean temperature in deg C).</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="summarizing-a-run">
+<h2>Summarizing a run<a class="headerlink" href="#summarizing-a-run" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="EBM_one_file.final_year_annual_means">
+<span class="sig-prename descclassname"><span class="pre">EBM_one_file.</span></span><span class="sig-name descname"><span class="pre">final_year_annual_means</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/EBM_one_file.html#final_year_annual_means"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#EBM_one_file.final_year_annual_means" title="Link to this definition"></a></dt>
+<dd><p>Annual means over the final orbit only.</p>
+<p>This is the quantity FILLET expects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary. <code class="docutils literal notranslate"><span class="pre">'Tglob'</span></code> is the global mean temperature in kelvin.
+<code class="docutils literal notranslate"><span class="pre">'T_land'</span></code>, <code class="docutils literal notranslate"><span class="pre">'T_ocean'</span></code> and <code class="docutils literal notranslate"><span class="pre">'T_avg'</span></code> are annual mean temperatures at
+each latitude in deg C. <code class="docutils literal notranslate"><span class="pre">'A_land'</span></code>, <code class="docutils literal notranslate"><span class="pre">'A_ocean'</span></code> and <code class="docutils literal notranslate"><span class="pre">'A_avg'</span></code> are
+annual mean albedos at each latitude, and <code class="docutils literal notranslate"><span class="pre">'lat'</span></code> is the latitude of
+each cell in degrees.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="EBM_one_file.mean_iceline">
+<span class="sig-prename descclassname"><span class="pre">EBM_one_file.</span></span><span class="sig-name descname"><span class="pre">mean_iceline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-2.013</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/EBM_one_file.html#mean_iceline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#EBM_one_file.mean_iceline" title="Link to this definition"></a></dt>
+<dd><p>Mean latitude of the ice line in the northern hemisphere over the final year.</p>
+<p>The ice line on each day is the latitude where the ocean temperature crosses
+the threshold. It is 0 when the whole hemisphere is frozen and 90 when it is
+ice free.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> – Output of <a class="reference internal" href="#EBM_one_file.seasonal_run" title="EBM_one_file.seasonal_run"><code class="xref py py-func docutils literal notranslate"><span class="pre">seasonal_run()</span></code></a>.</p></li>
+<li><p><strong>threshold</strong> – Ocean temperature that marks the ice edge, in deg C.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The mean ice-line latitude in degrees.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="EBM_one_file.co2_ice_fraction">
+<span class="sig-prename descclassname"><span class="pre">EBM_one_file.</span></span><span class="sig-name descname"><span class="pre">co2_ice_fraction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/EBM_one_file.html#co2_ice_fraction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#EBM_one_file.co2_ice_fraction" title="Link to this definition"></a></dt>
+<dd><p>Fraction of the surface covered by CO2 ice, averaged over the final orbit.</p>
+<p>This applies to runs made with <code class="docutils literal notranslate"><span class="pre">co2_ice</span> <span class="pre">=</span> <span class="pre">1</span></code>. It returns 0.0 for a run
+without CO2 ice.</p>
+</dd></dl>
+
+</section>
+<section id="inputs">
+<h2>Inputs<a class="headerlink" href="#inputs" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="EBM_one_file.get_broadband_albedo">
+<span class="sig-prename descclassname"><span class="pre">EBM_one_file.</span></span><span class="sig-name descname"><span class="pre">get_broadband_albedo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">star</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/EBM_one_file.html#get_broadband_albedo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#EBM_one_file.get_broadband_albedo" title="Link to this definition"></a></dt>
+<dd><p>Broadband albedos for a host star type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>star</strong> – Host star type, ‘F’, ‘G’, ‘K’ or ‘M’.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary with the ocean albedo (<code class="docutils literal notranslate"><span class="pre">A_o</span></code>), the land albedo (<code class="docutils literal notranslate"><span class="pre">A_l</span></code>),
+water ice albedos from snow (<code class="docutils literal notranslate"><span class="pre">Asnow</span></code>) to blue marine ice (<code class="docutils literal notranslate"><span class="pre">A_bi</span></code>), of
+which the model uses the 50% mixture (<code class="docutils literal notranslate"><span class="pre">A_50</span></code>), and CO2 ice albedos by
+grain size (<code class="docutils literal notranslate"><span class="pre">c_1</span></code> to <code class="docutils literal notranslate"><span class="pre">c_2k</span></code>; see <a class="reference internal" href="#EBM_one_file.get_co2_albedo" title="EBM_one_file.get_co2_albedo"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_co2_albedo()</span></code></a>).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="EBM_one_file.get_co2_albedo">
+<span class="sig-prename descclassname"><span class="pre">EBM_one_file.</span></span><span class="sig-name descname"><span class="pre">get_co2_albedo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">star</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/EBM_one_file.html#get_co2_albedo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#EBM_one_file.get_co2_albedo" title="Link to this definition"></a></dt>
+<dd><p>Broadband surface albedo of pure CO2 ice.</p>
+<p>The values are those of Table 2 in Venkatesan et al. (2025), computed from the
+CO2 ice spectra of Hansen (1997) weighted by each stellar spectrum.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>star</strong> – Host star type, ‘F’, ‘G’, ‘K’ or ‘M’.</p></li>
+<li><p><strong>grain</strong> – Grain size in microns: 1, 2, 5, 20, 100, 200 or 2000.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The albedo, between 0 and 1.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="EBM_one_file.build_land_fraction">
+<span class="sig-prename descclassname"><span class="pre">EBM_one_file.</span></span><span class="sig-name descname"><span class="pre">build_land_fraction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">land</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jmx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/EBM_one_file.html#build_land_fraction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#EBM_one_file.build_land_fraction" title="Link to this definition"></a></dt>
+<dd><p>Fraction of each latitude band covered by land.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phi</strong> – Latitude of each grid cell in degrees.</p></li>
+<li><p><strong>land</strong> – Name of the land configuration. Only the first letters are checked.
+<code class="docutils literal notranslate"><span class="pre">'modern'</span></code> is modern Earth continents in latitude bands,
+<code class="docutils literal notranslate"><span class="pre">'smooth'</span></code> is the same interpolated between bands, <code class="docutils literal notranslate"><span class="pre">'Fillet'</span></code> is
+25% land everywhere, <code class="docutils literal notranslate"><span class="pre">'Aquaplanet'</span></code> 1%, <code class="docutils literal notranslate"><span class="pre">'Landplanet'</span></code> 99% and
+<code class="docutils literal notranslate"><span class="pre">'Symmetric'</span></code> 34%. <code class="docutils literal notranslate"><span class="pre">'Precambrian'</span></code> and <code class="docutils literal notranslate"><span class="pre">'Ordovician'</span></code> are
+paleo-continents.</p></li>
+<li><p><strong>jmx</strong> – Number of latitude cells.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The land fraction of each cell.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="EBM_one_file.sun">
+<span class="sig-prename descclassname"><span class="pre">EBM_one_file.</span></span><span class="sig-name descname"><span class="pre">sun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ecc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">long</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">star</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/EBM_one_file.html#sun"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#EBM_one_file.sun" title="Link to this definition"></a></dt>
+<dd><p>Daily mean insolation over one orbit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xi</strong> – sin(latitude) of each grid cell.</p></li>
+<li><p><strong>obl</strong> – Obliquity in degrees.</p></li>
+<li><p><strong>ecc</strong> – Orbital eccentricity.</p></li>
+<li><p><strong>long</strong> – Longitude of periastron in degrees.</p></li>
+<li><p><strong>star</strong> – Host star type. Not used in the calculation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">(insol,</span> <span class="pre">distance,</span> <span class="pre">declination)</span></code>. <code class="docutils literal notranslate"><span class="pre">insol</span></code> is the insolation in W/m^2
+with shape (latitudes, 360). <code class="docutils literal notranslate"><span class="pre">distance</span></code> is the star-planet distance in
+units of the semi-major axis and <code class="docutils literal notranslate"><span class="pre">declination</span></code> is the declination of the
+star in degrees, each at 360 points in the orbit. The orbit-averaged flux
+scales as 1/sqrt(1 - ecc^2).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="EBM_one_file.olr_spiegel">
+<span class="sig-prename descclassname"><span class="pre">EBM_one_file.</span></span><span class="sig-name descname"><span class="pre">olr_spiegel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T_celsius</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/EBM_one_file.html#olr_spiegel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#EBM_one_file.olr_spiegel" title="Link to this definition"></a></dt>
+<dd><p>Outgoing longwave radiation from Spiegel, Menou &amp; Scharf (2008).</p>
+<p>The law is sigma*T^4 / (1 + 0.75*tau_IR), with tau_IR = 0.79*(T / 273 K)^3.
+Unlike the linear law A + B*T, it stays positive at all temperatures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>T_celsius</strong> – Temperature in deg C, a number or an array.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Outgoing longwave radiation in W/m^2.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="internals">
+<h2>Internals<a class="headerlink" href="#internals" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="EBM_one_file.build_setup">
+<span class="sig-prename descclassname"><span class="pre">EBM_one_file.</span></span><span class="sig-name descname"><span class="pre">build_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/EBM_one_file.html#build_setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#EBM_one_file.build_setup" title="Link to this definition"></a></dt>
+<dd><p>Build the grid, insolation, initial temperatures and solver matrices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cfg</strong> – Dictionary of settings (see <code class="docutils literal notranslate"><span class="pre">DEFAULTS</span></code>).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary used by <a class="reference internal" href="#EBM_one_file.seasonal_run" title="EBM_one_file.seasonal_run"><code class="xref py py-func docutils literal notranslate"><span class="pre">seasonal_run()</span></code></a>. It includes <code class="docutils literal notranslate"><span class="pre">'phi'</span></code> (latitude
+of each cell in degrees), <code class="docutils literal notranslate"><span class="pre">'fl'</span></code> and <code class="docutils literal notranslate"><span class="pre">'fw'</span></code> (land and ocean fractions)
+and <code class="docutils literal notranslate"><span class="pre">'insol'</span></code> (insolation in W/m^2).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="EBM_one_file.albedo_seasonal">
+<span class="sig-prename descclassname"><span class="pre">EBM_one_file.</span></span><span class="sig-name descname"><span class="pre">albedo_seasonal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">L</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">W</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A_o</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A_l</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A_50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A_co2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_co2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/EBM_one_file.html#albedo_seasonal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#EBM_one_file.albedo_seasonal" title="Link to this definition"></a></dt>
+<dd><p>Albedo of land and ocean at each latitude.</p>
+<p>Ice-free surfaces use the land and ocean albedos with a latitude dependence.
+Surfaces at or below -2 deg C use the water ice albedo <code class="docutils literal notranslate"><span class="pre">A_50</span></code>. If <code class="docutils literal notranslate"><span class="pre">A_co2</span></code>
+and <code class="docutils literal notranslate"><span class="pre">T_co2</span></code> are given, surfaces at or below <code class="docutils literal notranslate"><span class="pre">T_co2</span></code> (deg C) use the CO2
+ice albedo <code class="docutils literal notranslate"><span class="pre">A_co2</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">(alb_l,</span> <span class="pre">alb_w)</span></code>, the land and ocean albedo at each latitude.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="EBM_one_file.icebalance">
+<span class="sig-prename descclassname"><span class="pre">EBM_one_file.</span></span><span class="sig-name descname"><span class="pre">icebalance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jmx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conduct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Tfrz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rprimew</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Cw_delt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Diff_Op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nu_fw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Cw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">W</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/EBM_one_file.html#icebalance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#EBM_one_file.icebalance" title="Link to this definition"></a></dt>
+<dd><p>Solve one time step where sea ice is present.</p>
+<p>The surface temperature of ice-covered ocean is found from the balance of
+radiation, heat transport and heat conducted through ice of thickness <code class="docutils literal notranslate"><span class="pre">h</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A tuple <code class="docutils literal notranslate"><span class="pre">(T,</span> <span class="pre">L,</span> <span class="pre">W,</span> <span class="pre">Fnet)</span></code> with the full temperature vector, the land and
+ocean temperatures, and the net heat flux into the ice, which sets how
+the ice thickness changes.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="EBM_one_file.olr_constant">
+<span class="sig-prename descclassname"><span class="pre">EBM_one_file.</span></span><span class="sig-name descname"><span class="pre">olr_constant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">olr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_celsius</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/EBM_one_file.html#olr_constant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#EBM_one_file.olr_constant" title="Link to this definition"></a></dt>
+<dd><p>The term the solver uses in place of A.</p>
+<p>The solver treats the outgoing radiation as (this term) + B*T, with B handled
+implicitly. For the linear law the term is A. For the Spiegel law it is
+OLR(T) - B*T at the current temperature, so the converged solution satisfies
+the full non-linear law.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="validation.html" class="btn btn-neutral float-left" title="Comparison with Venkatesan et al. (2025)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Vidya Venkatesan (Python version). Original MATLAB model by Cecilia Bitz, after North and Coakley (1979).</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

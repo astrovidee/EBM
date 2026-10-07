@@ -1,57 +1,44 @@
 # Configuration file for the Sphinx documentation builder.
 #
-# For the full list of built-in configuration values, see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
-
-# -- Project information -----------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
-
-project = 'EBM'
-copyright = '2025, Vidya Venkatesan (python version), Cecilia Bitz coded up the original version from North&Coakley1979 in Matlab'
-author = 'Vidya Venkatesan (python version), Cecilia Bitz coded up the original version from North&Coakley1979 in Matlab'
-release = 'v1'
-
-# -- General configuration ---------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
-
-# Required Extensions
-extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon',           # For Google-style docstrings
-    'sphinx.ext.viewcode',           # Link to source code
-    'sphinx.ext.autodoc.typehints',  # Type hints in docstrings
-    'sphinx.ext.todo',               # Support for TODO directives
-    'sphinx.ext.githubpages'         # For GitHub Pages compatibility
-]
+# Build the site from the repository root with:
+#     sphinx-build -b html source docs
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('/Users/astrovidee/Dropbox/EBM'))
 
+# Make EBM_one_file.py, one folder up, importable for the API reference.
+sys.path.insert(0, os.path.abspath('..'))
 
+# -- Project information -----------------------------------------------------
 
+project = 'EBM'
+copyright = ('2025, Vidya Venkatesan (Python version). Original MATLAB model '
+             'by Cecilia Bitz, after North and Coakley (1979)')
+author = 'Vidya Venkatesan'
+release = '1.1.0'
 
-templates_path = ['_templates']
+# -- General configuration ---------------------------------------------------
+
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.githubpages',   # writes .nojekyll so GitHub Pages serves the site
+]
+
+templates_path = []
 exclude_patterns = []
-
-language = 'python'
+language = 'en'
 
 # -- Options for HTML output -------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-
-html_static_path = ['_static']
 html_theme = 'sphinx_rtd_theme'
 html_theme_options = {
     'collapse_navigation': False,
     'sticky_navigation': True,
-    'navigation_depth': 4,
-    'includehidden': True,
-    'titles_only': False
+    'navigation_depth': 3,
 }
-autodoc_typehints = 'description'
+html_static_path = ['_static']
+html_css_files = ['custom.css']
+html_show_sourcelink = False
 autodoc_member_order = 'bysource'
-
-html_show_sourcelink = True
-suppress_warnings = ['autodoc.mock']
-

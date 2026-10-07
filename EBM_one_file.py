@@ -1,3 +1,27 @@
+"""
+EBM: a one-dimensional, seasonal energy balance model for planetary climates.
+
+The model follows North and Coakley (1979), with separate land and ocean
+temperatures at each latitude and a simple sea ice model. It is a Python
+version of the MATLAB model written by Cecilia Bitz, and includes the stellar
+type dependent albedos and the CO2 ice treatment of Venkatesan et al. (2025,
+Astrobiology 25, 42).
+
+Typical use::
+
+    import EBM_one_file as ebm
+
+    cfg = ebm.DEFAULTS.copy()
+    cfg["scaleQ"] = 0.9
+    results = ebm.seasonal_run(cfg)
+    print(ebm.mean_iceline(results))
+
+All temperatures are in degrees Celsius unless stated otherwise. The latitude
+grid is evenly spaced in sin(latitude).
+"""
+
+import warnings
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
@@ -17,7 +41,7 @@ DEFAULTS = {
     "ecc": 0.0,
     "per": 102.07,
     "star": "G",
-    "land": "Fillet",
+    "land": "modern",
     "casename": "Control",
     "hadleyflag": 1.0,
     "albedoflag": 0.0,
@@ -27,6 +51,18 @@ DEFAULTS = {
     "Cw": 9.8,
     "nu": 3.0,
     "rghflag": 0.0,
+    # Outgoing longwave radiation (OLR):
+    #   "linear"  = A + B*T, with T in deg C (North & Coakley 1979)
+    #   "spiegel" = sigma*T^4 / (1 + 0.75*tau), tau = 0.79*(T/273 K)^3 (Spiegel et al. 2008)
+    "olr": "linear",
+    # Latent heat constant of sea ice (W yr m^-3).
+    "Lfice": 9.8 * 83.5 / 50.0,
+    # CO2 ice (Venkatesan et al. 2025, Astrobiology 25, 42)
+    "co2_ice": 0.0,          # 1 = give the surface the CO2 ice albedo where it is cold enough
+    "co2_grain": 200,        # CO2 ice grain size in microns: 1, 2, 5, 20, 100, 200 or 2000
+    "co2_Tcond": -142.09,    # CO2 condensation temperature in deg C (131.06 K: 400 ppmv CO2 at 1 bar)
+    "co2_coldstart": 0.0,    # 1 = start as a CO2 snowball, 10 deg C below co2_Tcond everywhere
+    "co2_Lfice": 9.8 * 246 / 50.0,   # value of Lfice that co2_run uses for its CO2 ice runs
 }
 
 
@@ -34,6 +70,17 @@ DEFAULTS = {
 # BROADBAND ALBEDO PARAMETERS
 
 def get_broadband_albedo(star: str):
+    """Broadband albedos for a host star type.
+
+    Args:
+        star: Host star type, 'F', 'G', 'K' or 'M'.
+
+    Returns:
+        A dictionary with the ocean albedo (``A_o``), the land albedo (``A_l``),
+        water ice albedos from snow (``Asnow``) to blue marine ice (``A_bi``), of
+        which the model uses the 50% mixture (``A_50``), and CO2 ice albedos by
+        grain size (``c_1`` to ``c_2k``; see :func:`get_co2_albedo`).
+    """
     star = star.strip().upper()
 
     if star == 'F':
@@ -122,9 +169,79 @@ def get_broadband_albedo(star: str):
     }
 
 
+# OUTGOING LONGWAVE RADIATION
+
+SIGMA_SB = 5.670374e-8   # Stefan-Boltzmann constant, W m^-2 K^-4
+
+def olr_spiegel(T_celsius):
+    """Outgoing longwave radiation from Spiegel, Menou & Scharf (2008).
+
+    The law is sigma*T^4 / (1 + 0.75*tau_IR), with tau_IR = 0.79*(T / 273 K)^3.
+    Unlike the linear law A + B*T, it stays positive at all temperatures.
+
+    Args:
+        T_celsius: Temperature in deg C, a number or an array.
+
+    Returns:
+        Outgoing longwave radiation in W/m^2.
+    """
+    T = np.maximum(np.asarray(T_celsius, dtype=float) + 273.15, 1.0)
+    tau = 0.79 * (T / 273.0)**3
+    return SIGMA_SB * T**4 / (1.0 + 0.75 * tau)
+
+
+def olr_constant(olr, A, B, T_celsius):
+    """The term the solver uses in place of A.
+
+    The solver treats the outgoing radiation as (this term) + B*T, with B handled
+    implicitly. For the linear law the term is A. For the Spiegel law it is
+    OLR(T) - B*T at the current temperature, so the converged solution satisfies
+    the full non-linear law.
+    """
+    if olr == 'linear':
+        return A
+    return olr_spiegel(T_celsius) - B * T_celsius
+
+
+# CO2 ICE ALBEDO
+
+CO2_GRAIN_KEYS = {1: 'c_1', 2: 'c_2', 5: 'c_5', 20: 'c_20', 100: 'c_100', 200: 'c_200', 2000: 'c_2k'}
+
+def get_co2_albedo(star, grain=200):
+    """Broadband surface albedo of pure CO2 ice.
+
+    The values are those of Table 2 in Venkatesan et al. (2025), computed from the
+    CO2 ice spectra of Hansen (1997) weighted by each stellar spectrum.
+
+    Args:
+        star: Host star type, 'F', 'G', 'K' or 'M'.
+        grain: Grain size in microns: 1, 2, 5, 20, 100, 200 or 2000.
+
+    Returns:
+        The albedo, between 0 and 1.
+    """
+    try:
+        key = CO2_GRAIN_KEYS[int(grain)]
+    except (KeyError, ValueError, TypeError):
+        raise ValueError(
+            f"Invalid CO2 ice grain size {grain!r}. Must be one of {sorted(CO2_GRAIN_KEYS)} microns."
+        )
+    return get_broadband_albedo(star)[key]
+
+
 # ALBEDO FEEDBACK
 
-def albedo_seasonal(L, W, x, A_o, A_l, A_50):
+def albedo_seasonal(L, W, x, A_o, A_l, A_50, A_co2=None, T_co2=None):
+    """Albedo of land and ocean at each latitude.
+
+    Ice-free surfaces use the land and ocean albedos with a latitude dependence.
+    Surfaces at or below -2 deg C use the water ice albedo ``A_50``. If ``A_co2``
+    and ``T_co2`` are given, surfaces at or below ``T_co2`` (deg C) use the CO2
+    ice albedo ``A_co2``.
+
+    Returns:
+        ``(alb_l, alb_w)``, the land and ocean albedo at each latitude.
+    """
     alb_w = A_o + 0.08 * (3 * x**2 - 1) / 2 - 0.05
     alb_l = A_l + 0.08 * (3 * x**2 - 1) / 2 + 0.05
 
@@ -133,6 +250,10 @@ def albedo_seasonal(L, W, x, A_o, A_l, A_50):
     alb_w[idx_w] = A_50
     alb_l[idx_l] = A_50
 
+    if A_co2 is not None and T_co2 is not None:
+        alb_w[W <= T_co2] = A_co2
+        alb_l[L <= T_co2] = A_co2
+
     return alb_l, alb_w
 
 
@@ -140,6 +261,22 @@ def albedo_seasonal(L, W, x, A_o, A_l, A_50):
 # SEASONAL INSOLATION
 
 def sun(xi, obl, ecc, long, star):
+    """Daily mean insolation over one orbit.
+
+    Args:
+        xi: sin(latitude) of each grid cell.
+        obl: Obliquity in degrees.
+        ecc: Orbital eccentricity.
+        long: Longitude of periastron in degrees.
+        star: Host star type. Not used in the calculation.
+
+    Returns:
+        ``(insol, distance, declination)``. ``insol`` is the insolation in W/m^2
+        with shape (latitudes, 360). ``distance`` is the star-planet distance in
+        units of the semi-major axis and ``declination`` is the declination of the
+        star in degrees, each at 360 points in the orbit. The orbit-averaged flux
+        scales as 1/sqrt(1 - ecc^2).
+    """
     npts = len(xi)
     t1 = 2808 / 2.0754
     dr_conv = np.pi / 180.0
@@ -253,6 +390,16 @@ def sun(xi, obl, ecc, long, star):
 # ICE BALANCE
 
 def icebalance(jmx, ice, notice, conduct, h, Tfrz, rprimew, Cw_delt, M, r, Diff_Op, B, nu_fw, fw, delx, Cw, W):
+    """Solve one time step where sea ice is present.
+
+    The surface temperature of ice-covered ocean is found from the balance of
+    radiation, heat transport and heat conducted through ice of thickness ``h``.
+
+    Returns:
+        A tuple ``(T, L, W, Fnet)`` with the full temperature vector, the land and
+        ocean temperatures, and the net heat flux into the ice, which sets how
+        the ice thickness changes.
+    """
     k = np.zeros(jmx)
     Fnet = np.zeros(jmx)
 
@@ -311,6 +458,21 @@ def icebalance(jmx, ice, notice, conduct, h, Tfrz, rprimew, Cw_delt, M, r, Diff_
 # SETUP HELPERS
 
 def build_land_fraction(phi, land, jmx):
+    """Fraction of each latitude band covered by land.
+
+    Args:
+        phi: Latitude of each grid cell in degrees.
+        land: Name of the land configuration. Only the first letters are checked.
+            ``'modern'`` is modern Earth continents in latitude bands,
+            ``'smooth'`` is the same interpolated between bands, ``'Fillet'`` is
+            25% land everywhere, ``'Aquaplanet'`` 1%, ``'Landplanet'`` 99% and
+            ``'Symmetric'`` 34%. ``'Precambrian'`` and ``'Ordovician'`` are
+            paleo-continents.
+        jmx: Number of latitude cells.
+
+    Returns:
+        The land fraction of each cell.
+    """
     fl = 0.05 * np.ones(jmx)
     key = land.strip().lower()
 
@@ -332,11 +494,14 @@ def build_land_fraction(phi, land, jmx):
         fl[:] = 0.99
     elif key.startswith('fillet'):
         fl[:] = 0.25
-    elif key.startswith('modern') or key.startswith('earth') or key.startswith('cont'):
+    elif key.startswith('smooth'):
+        # modern continents, interpolated smoothly between latitude bands
         lat_nodes = np.array([-90, -60, -40, 20, 70, 90], dtype=float)
         fl_nodes  = np.array([0.95, 0.95, 0.05, 0.25, 0.50, 0.38], dtype=float)
         fl = np.interp(phi, lat_nodes, fl_nodes)
     else:
+        # 'modern' (also 'earth', 'cont', and any unrecognised name): modern continents
+        # in latitude bands, as in the original MATLAB model and Venkatesan et al. (2025)
         fl = 0.38 * np.ones(jmx)
         j = np.where(phi <= -60)[0]
         fl[j] = 0.95
@@ -351,6 +516,16 @@ def build_land_fraction(phi, land, jmx):
 
 
 def build_setup(cfg):
+    """Build the grid, insolation, initial temperatures and solver matrices.
+
+    Args:
+        cfg: Dictionary of settings (see ``DEFAULTS``).
+
+    Returns:
+        A dictionary used by :func:`seasonal_run`. It includes ``'phi'`` (latitude
+        of each cell in degrees), ``'fl'`` and ``'fw'`` (land and ocean fractions)
+        and ``'insol'`` (insolation in W/m^2).
+    """
     jmx = int(cfg['jmx'])
     jmx = 2 * (jmx // 2)
 
@@ -373,10 +548,26 @@ def build_setup(cfg):
     land = cfg['land']
     casename = cfg['casename']
     rghflag = float(cfg.get('rghflag', 0.0))
+    olr = str(cfg.get('olr', 'linear')).strip().lower()
+    if olr not in ('linear', 'spiegel'):
+        raise ValueError("Invalid olr setting. Must be 'linear' or 'spiegel'.")
+    co2_ice = bool(float(cfg.get('co2_ice', 0.0)))
+    co2_coldstart = bool(float(cfg.get('co2_coldstart', 0.0)))
+    T_co2 = float(cfg.get('co2_Tcond', -142.09)) if co2_ice else None
+    A_co2 = get_co2_albedo(star, cfg.get('co2_grain', 200)) if co2_ice else None
+    if co2_ice and olr == 'linear' and T_co2 <= -A / B:
+        # The outgoing longwave radiation, A + B*T, falls to zero at T = -A/B, so no
+        # latitude can stay colder than that in equilibrium, whatever the stellar flux.
+        warnings.warn(
+            f"co2_Tcond = {T_co2:.2f} C is below the coldest temperature this model can "
+            f"hold, -A/B = {-A / B:.2f} C, so CO2 ice will not persist. "
+            "Use olr='spiegel', raise co2_Tcond, or change A and B, to study CO2 ice.",
+            stacklevel=2,
+        )
 
     Tfrz = -2.0
     conduct = 2.0
-    Lfice = 9.8 * 83.5 / 50.0
+    Lfice = float(cfg.get('Lfice', 9.8 * 83.5 / 50.0))
 
     ts = 90
     tf = runlength - 0.25
@@ -393,6 +584,10 @@ def build_setup(cfg):
     Toffset = -40.0 if coldstartflag else 0.0
     L = 7.5 + 20 * (1 - 2 * xfull**2) + Toffset
     W = 7.5 + 20 * (1 - 2 * xfull**2) + Toffset
+    if co2_ice and co2_coldstart:
+        # CO2 snowball: every latitude starts below the CO2 condensation temperature
+        L = np.full(jmx, T_co2 - 10.0)
+        W = np.full(jmx, T_co2 - 10.0)
 
     if hadleyflag:
         D = Dmag * (1 + 9 * np.exp(- (x / np.sin(25 * np.pi / 180.0))**6))
@@ -403,7 +598,9 @@ def build_setup(cfg):
     fw = 1.0 - fl
 
     insol, distance, delt_arr = sun(xfull, obl, ecc, per, star)
-    insol = scaleQ * np.concatenate((insol[:, -1][:, np.newaxis], insol[:, :-1]), axis=1)
+    # insol_base is the insolation at scaleQ = 1. The flux scaling is applied once, here.
+    insol_base = np.concatenate((insol[:, -1][:, np.newaxis], insol[:, :-1]), axis=1)
+    insol = scaleQ * insol_base
 
     Cw_delt = Cw / delt
     Cl_delt = Cl / delt
@@ -503,7 +700,7 @@ def build_setup(cfg):
         'fl': fl,
         'fw': fw,
         'insol': insol,
-        'insol_base': insol.copy(),
+        'insol_base': insol_base,
         'distance': distance,
         'delt_arr': delt_arr,
         'Cw_delt': Cw_delt,
@@ -526,6 +723,10 @@ def build_setup(cfg):
         'A_o': A_o,
         'A_l': A_l,
         'A_50': A_50,
+        'olr': olr,
+        'co2_ice': co2_ice,
+        'A_co2': A_co2,
+        'T_co2': T_co2,
     }
 
 
@@ -533,6 +734,21 @@ def build_setup(cfg):
 # MAIN SEASONAL SOLVER
 
 def seasonal_run(cfg=None):
+    """Run the model for one configuration.
+
+    Args:
+        cfg: Dictionary of settings. Any setting left out takes its value from
+            ``DEFAULTS``.
+
+    Returns:
+        A dictionary. ``'Lann'``, ``'Wann'`` and ``'h_ann'`` are the land
+        temperature, ocean temperature (deg C) and sea ice thickness (m) for the
+        final year, with shape (latitudes, 360). ``'alb_l_ann'`` and
+        ``'alb_w_ann'`` are the land and ocean albedo for the final year.
+        ``'L_out'``, ``'W_out'`` and ``'h_out'`` are the same fields for the whole
+        run, ``'final_L'``, ``'final_W'`` and ``'final_h'`` are the last time
+        step, and ``'setup'`` holds the grid and inputs (see :func:`build_setup`).
+    """
     if cfg is None:
         cfg = DEFAULTS.copy()
     else:
@@ -580,6 +796,9 @@ def seasonal_run(cfg=None):
     A_o = setup_data['A_o']
     A_l = setup_data['A_l']
     A_50 = setup_data['A_50']
+    A_co2 = setup_data['A_co2']
+    T_co2 = setup_data['T_co2']
+    olr = setup_data['olr']
 
     r = np.zeros(2 * jmx)
 
@@ -593,11 +812,11 @@ def seasonal_run(cfg=None):
             alb_l = clim_alb_l[:, int(thedays_setup[0]) - 1]
             alb_w = clim_alb_w[:, int(thedays_setup[0]) - 1]
         else:
-            alb_l, alb_w = albedo_seasonal(L, W, xfull, A_o, A_l, A_50)
+            alb_l, alb_w = albedo_seasonal(L, W, xfull, A_o, A_l, A_50, A_co2, T_co2)
 
         S = insol[:, int(ts) - 1]
-        rprimel = A - ((1 - alb_l) * S)
-        rprimew = A - ((1 - alb_w) * S)
+        rprimel = olr_constant(olr, A, B, L) - ((1 - alb_l) * S)
+        rprimew = olr_constant(olr, A, B, W) - ((1 - alb_w) * S)
         r[0::2] = L * Cl_delt - rprimel
         r[1::2] = W * Cw_delt - rprimew
 
@@ -634,14 +853,14 @@ def seasonal_run(cfg=None):
             alb_l = clim_alb_l[:, nn - 1]
             alb_w = clim_alb_w[:, nn - 1]
         else:
-            alb_l, alb_w = albedo_seasonal(L, W, xfull, A_o, A_l, A_50)
+            alb_l, alb_w = albedo_seasonal(L, W, xfull, A_o, A_l, A_50, A_co2, T_co2)
 
         S = insol[:, day_idx - 1]
         ghw = np.where(W > 46.2)[0]
         ghl = np.where(L > 46.2)[0]
 
-        rprimel = A - ((1 - alb_l) * S)
-        rprimew = A - ((1 - alb_w) * S)
+        rprimel = olr_constant(olr, A, B, L) - ((1 - alb_l) * S)
+        rprimew = olr_constant(olr, A, B, W) - ((1 - alb_w) * S)
         if rghflag:
             A1 = 300
             rprimew[ghw] = A1 - (1 - alb_w[ghw]) * S[ghw]
@@ -722,12 +941,20 @@ def seasonal_run(cfg=None):
 # DIAGNOSTICS
 
 def annual_means(results):
+    """Same as :func:`final_year_annual_means`."""
     return final_year_annual_means(results)
 
 def final_year_annual_means(results):
-    """
-    Annual means over the FINAL orbit only.
+    """Annual means over the final orbit only.
+
     This is the quantity FILLET expects.
+
+    Returns:
+        A dictionary. ``'Tglob'`` is the global mean temperature in kelvin.
+        ``'T_land'``, ``'T_ocean'`` and ``'T_avg'`` are annual mean temperatures at
+        each latitude in deg C. ``'A_land'``, ``'A_ocean'`` and ``'A_avg'`` are
+        annual mean albedos at each latitude, and ``'lat'`` is the latitude of
+        each cell in degrees.
     """
     setup = results['setup']
     fl = setup['fl']
@@ -759,10 +986,101 @@ def final_year_annual_means(results):
     }
 
 
+def co2_ice_fraction(results):
+    """Fraction of the surface covered by CO2 ice, averaged over the final orbit.
+
+    This applies to runs made with ``co2_ice = 1``. It returns 0.0 for a run
+    without CO2 ice.
+    """
+    setup = results['setup']
+    if not setup.get('co2_ice'):
+        return 0.0
+    fl = setup['fl'][:, None]
+    fw = setup['fw'][:, None]
+    T_co2 = setup['T_co2']
+    covered = fl * (results['Lann'] <= T_co2) + fw * (results['Wann'] <= T_co2)
+    return float(np.mean(covered))
+
+
+def co2_run(cfg=None, start='warm'):
+    """Run one case with the CO2 condensation test on the global mean temperature.
+
+    With ``olr='spiegel'``, this is the procedure that reproduces the CO2 results
+    of Venkatesan et al. (2025). With the default linear law the model cannot
+    cool to the default ``co2_Tcond``, so no CO2 ice will be found.
+
+    For a warm start, the model first runs with water ice only. If the global
+    annual mean surface temperature is at or below ``co2_Tcond``, CO2 is taken to
+    have condensed, and the case is run again with the CO2 ice albedo on every
+    frozen surface.
+
+    For a cold start, the model first runs from a frozen start with the CO2 ice
+    albedo on every frozen surface. If the global annual mean temperature is above
+    ``co2_Tcond``, the CO2 ice is taken to have sublimated, and the case is run
+    again with water ice only.
+
+    The CO2 ice runs use the sea ice constant ``co2_Lfice`` and the water ice runs
+    use ``Lfice``, as in the original MATLAB model.
+
+    Args:
+        cfg: Dictionary of settings. Any setting left out takes its value from
+            ``DEFAULTS``.
+        start: ``'warm'`` or ``'cold'``.
+
+    Returns:
+        A pair ``(results, has_co2_ice)`` with the results of the final run, as
+        returned by :func:`seasonal_run`, and whether the planet ends with CO2 ice.
+    """
+    if start not in ('warm', 'cold'):
+        raise ValueError("start must be 'warm' or 'cold'.")
+    merged = DEFAULTS.copy()
+    if cfg is not None:
+        merged.update(cfg)
+    T_cond = float(merged['co2_Tcond'])
+    if str(merged.get('olr', 'linear')).strip().lower() == 'linear':
+        floor = -float(merged['A']) / float(merged['B'])
+        if T_cond <= floor:
+            warnings.warn(
+                f"co2_Tcond = {T_cond:.2f} C is below the coldest temperature the linear "
+                f"OLR law can reach, -A/B = {floor:.2f} C, so no CO2 ice will be found. "
+                "Set olr='spiegel' to study CO2 ice.",
+                stacklevel=2,
+            )
+
+    water = merged.copy()
+    water.update(co2_ice=0.0, co2_coldstart=0.0, coldstart=1.0 if start == 'cold' else 0.0)
+    co2 = water.copy()
+    # CO2 ice albedo wherever the surface is frozen, with the sea ice constant of the CO2 runs
+    co2.update(co2_ice=1.0, co2_Tcond=-2.0, Lfice=float(merged.get('co2_Lfice', 9.8 * 246 / 50.0)))
+
+    def global_mean_T(results):
+        return final_year_annual_means(results)['Tglob'] - 273.15
+
+    first, second = (water, co2) if start == 'warm' else (co2, water)
+    results = seasonal_run(first)
+    has_co2 = global_mean_T(results) <= T_cond
+    if has_co2 != (start == 'cold'):
+        results = seasonal_run(second)
+    return results, bool(has_co2)
+
+
 def mean_iceline(results, threshold=-2.013):
+    """Mean latitude of the ice line in the northern hemisphere over the final year.
+
+    The ice line on each day is the latitude where the ocean temperature crosses
+    the threshold. It is 0 when the whole hemisphere is frozen and 90 when it is
+    ice free.
+
+    Args:
+        results: Output of :func:`seasonal_run`.
+        threshold: Ocean temperature that marks the ice edge, in deg C.
+
+    Returns:
+        The mean ice-line latitude in degrees.
+    """
     setup = results['setup']
     jmx = setup['jmx']
-    phi = np.linspace(-90, 90, jmx)
+    phi = setup['phi']   # latitude of each grid cell (the grid is evenly spaced in sin(latitude))
     delt = setup['delt']
 
     W_out = results['W_out']
@@ -801,6 +1119,19 @@ def mean_iceline(results, threshold=-2.013):
 #WARMSTART 
 
 def warmstart_sweep(cfg=None, scaleQ_values=None, save_txt=False, make_plot=True):
+    """Run the model from a warm start for a series of stellar fluxes.
+
+    Args:
+        cfg: Dictionary of settings.
+        scaleQ_values: Fluxes relative to the default. If left out, 1.30 down to
+            0.30 in steps of 0.05.
+        save_txt: Also write the results to ``G_dwarf_ws.txt``.
+        make_plot: Show mean temperature and ice line against flux.
+
+    Returns:
+        A dictionary of arrays with the keys ``'scaleQ'``, ``'mean_iceline'``
+        (degrees) and ``'mean_Tg'`` (global mean temperature in deg C).
+    """
     if cfg is None:
         cfg = DEFAULTS.copy()
     else:
@@ -874,6 +1205,7 @@ def warmstart_sweep(cfg=None, scaleQ_values=None, save_txt=False, make_plot=True
 # EXAMPLE MAIN
 
 def main():
+    """Example: a warm-start sweep over stellar flux, saved as a table and a plot."""
     # Run EBM with warmstart sweep over scaleQ values
     print("Running EBM warmstart sweep over scaleQ values...")
     print("=" * 60)
