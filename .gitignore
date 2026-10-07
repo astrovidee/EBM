@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+build/
+.DS_Store
+# outputs of the built-in example
+scaleQ_vs_iceline.txt
+scaleQ_vs_iceline.png
+G_dwarf_ws.txt
