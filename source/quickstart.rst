@@ -57,7 +57,7 @@ there are 360 time steps per year.
        degrees, ``setup["fl"]`` and ``setup["fw"]`` are the land and ocean
        fractions, and ``setup["insol"]`` is the insolation in W/m²
 
-Two functions summarize a run:
+Three functions summarize a run:
 
 .. code-block:: python
 
@@ -68,9 +68,12 @@ Two functions summarize a run:
    means["lat"]       # latitude of each cell in degrees
 
    ebm.mean_iceline(results)   # mean ice-line latitude in degrees
+   ebm.ice_edges(results)      # latitude limits of sea ice and ice-covered land
 
 The ice line is 0 when the hemisphere is fully frozen and 90 when it is ice
-free.
+free. It is the latitude where the ocean crosses -2.013 deg C, as in
+Venkatesan et al. (2025), and usually lies poleward of the sea ice.
+``ice_edges`` gives the extent of the ice itself, from the sea ice thickness.
 
 Warm and cold starts
 --------------------

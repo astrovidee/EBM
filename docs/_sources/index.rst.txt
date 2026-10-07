@@ -22,6 +22,7 @@ https://github.com/astrovidee/EBM.
    settings
    co2
    validation
+   fillet
    api
 
 How to cite

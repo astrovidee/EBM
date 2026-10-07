@@ -19,10 +19,13 @@ Planet and star
        of ocean, land, water ice and CO2 ice.
      - ``"G"``
    * - ``scaleQ``
-     - Stellar flux relative to the default, which is 1353 W/m² at the planet's
-       semi-major axis. For an eccentric orbit the orbit-averaged flux is
-       larger by a factor 1/sqrt(1 - ecc²).
+     - Stellar flux relative to ``solar_constant``. For an eccentric orbit the
+       orbit-averaged flux is larger by a factor 1/sqrt(1 - ecc²).
      - 1.0
+   * - ``solar_constant``
+     - Stellar flux at the planet's semi-major axis for ``scaleQ = 1``, in
+       W/m²
+     - about 1353
    * - ``ecc``
      - Orbital eccentricity
      - 0.0
@@ -100,6 +103,10 @@ Climate physics
    * - ``Lfice``
      - Latent heat constant of sea ice
      - 9.8·83.5/50
+   * - ``zenithflag``
+     - 1 makes the albedo of ice-free land and ocean follow the star's
+       declination through the year. 0 makes it depend on latitude only.
+     - 1
    * - ``rghflag``
      - 1 fixes the outgoing radiation at 300 W/m² above 46.2 deg C, a simple
        runaway greenhouse limit

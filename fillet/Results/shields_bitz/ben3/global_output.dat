@@ -1,0 +1,25 @@
+# Name of benchmark/experiment: Benchmark 3 (un-tuned, obliquity 60)
+# Code: Shields-Bitz EBM (EBM_one_file.py, https://github.com/astrovidee/EBM), version 1.1.0
+# Grid: 120 cells of equal area (evenly spaced in sin latitude). Global means are plain means over cells.
+# Surfaces: separate land and ocean temperatures at each latitude; thermodynamic sea ice.
+# Albedo: stellar-weighted values for a G star (ocean 0.319, land 0.415, ice 0.514) with a zenith-angle term
+#   on ice-free surfaces that follows the star's declination (zenithflag = 1). The protocol's 0.3/0.2/0.6
+#   cannot be set in this model. The model has no atmosphere, so Asurf and ATOA are the same. Both are
+#   unweighted time means over the final orbit.
+# Longwave: A + B*T with T in deg C. No CO2 term (see the Experiment 4 header for how CO2 is handled there).
+# Sea ice has no heat capacity in this model (the protocol lists 1e7 J m^-2 K^-1).
+# Every case starts from the prescribed warm or cold state. No case continues from another.
+#   Warm start: 7.5 + 20*(1 - 2*sin(lat)^2) deg C. Cold start: 40 deg C colder, with 2 m of sea ice.
+# Run length: 100 orbits of 360 steps; a case whose global mean still changed by more than
+#   0.01 K over its final orbit was rerun for 400 orbits.
+# Diffusion: constant D. Heat capacities: land 1e+07, ocean 4e+08 J m^-2 K^-1.
+# Land: Fillet. Instellation unit: 1361 W m^-2.
+# Convergence: largest change in Tglob over the final orbit 7.0e-10 K; largest north-south difference in annual-mean temperature 1.1e-12 K; 0 of 1 cases rerun for longer.
+# Describe how ice line latitude is determined: from the model's own ice. Sea: sea ice thickness above zero
+#   for at least half of the final orbit. Land: land temperature at or below -2 C, where the land albedo
+#   switches to ice, for at least half of the final orbit. Edges lie on the boundaries between cells.
+# Ice-free convention: NMax = NMin = 90 and SMax = SMin = -90.
+#
+# Columns: Inst (S_earth), Obl (deg), XCO2 (ppm), Tglob (K), ice edges (deg), Diff (W m^-2 K^-1), OLRglob (W m^-2)
+# Case Inst Obl XCO2 Tglob IceLineNMaxLand IceLineNMinLand IceLineNMaxSea IceLineNMinSea IceLineSMaxLand IceLineSMinLand IceLineSMaxSea IceLineSMinSea Diff OLRglob
+0 1.0000 60.0 280.0000 288.778 90.00 90.00 90.00 90.00 -90.00 -90.00 -90.00 -90.00 0.500 235.963

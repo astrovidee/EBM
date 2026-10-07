@@ -17,6 +17,8 @@ Summarizing a run
 
 .. autofunction:: EBM_one_file.final_year_annual_means
 
+.. autofunction:: EBM_one_file.ice_edges
+
 .. autofunction:: EBM_one_file.mean_iceline
 
 .. autofunction:: EBM_one_file.co2_ice_fraction

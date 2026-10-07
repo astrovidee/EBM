@@ -25,6 +25,7 @@ import warnings
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
+from scipy.linalg import solve_banded
 from scipy.io import loadmat
 
 # DEFAULT CONFIGURATION
@@ -51,6 +52,12 @@ DEFAULTS = {
     "Cw": 9.8,
     "nu": 3.0,
     "rghflag": 0.0,
+    # Stellar flux at the planet for scaleQ = 1, in W/m^2. The default is the value of the
+    # original model, about 1353. FILLET defines 1 S_Earth as 1361.
+    "solar_constant": 2808 / 2.0754,
+    # 1 = the albedo of ice-free land and ocean follows the star's declination through the year,
+    # as in the original MATLAB model. 0 = it depends on latitude only.
+    "zenithflag": 1.0,
     # Outgoing longwave radiation (OLR):
     #   "linear"  = A + B*T, with T in deg C (North & Coakley 1979)
     #   "spiegel" = sigma*T^4 / (1 + 0.75*tau), tau = 0.79*(T/273 K)^3 (Spiegel et al. 2008)
@@ -271,7 +278,7 @@ def albedo_seasonal(L, W, x, A_o, A_l, A_50, A_co2=None, T_co2=None, dec=0.0):
 
 # SEASONAL INSOLATION
 
-def sun(xi, obl, ecc, long, star):
+def sun(xi, obl, ecc, long, star, solar_constant=2808 / 2.0754):
     """Daily mean insolation over one orbit.
 
     Args:
@@ -280,6 +287,7 @@ def sun(xi, obl, ecc, long, star):
         ecc: Orbital eccentricity.
         long: Longitude of periastron in degrees.
         star: Host star type. Not used in the calculation.
+        solar_constant: Stellar flux at the planet's semi-major axis in W/m^2.
 
     Returns:
         ``(insol, distance, declination)``. ``insol`` is the insolation in W/m^2
@@ -289,7 +297,7 @@ def sun(xi, obl, ecc, long, star):
         scales as 1/sqrt(1 - ecc^2).
     """
     npts = len(xi)
-    t1 = 2808 / 2.0754
+    t1 = solar_constant
     dr_conv = np.pi / 180.0
     rd_conv = 1.0 / dr_conv
 
@@ -400,7 +408,8 @@ def sun(xi, obl, ecc, long, star):
 
 # ICE BALANCE
 
-def icebalance(jmx, ice, notice, conduct, h, Tfrz, rprimew, Cw_delt, M, r, Diff_Op, B, nu_fw, fw, delx, Cw, W):
+def icebalance(jmx, ice, notice, conduct, h, Tfrz, rprimew, Cw_delt, M, r, Diff_Op, B, nu_fw, fw, delx, Cw, W,
+               M_band=None):
     """Solve one time step where sea ice is present.
 
     The surface temperature of ice-covered ocean is found from the balance of
@@ -420,9 +429,16 @@ def icebalance(jmx, ice, notice, conduct, h, Tfrz, rprimew, Cw_delt, M, r, Diff_
 
     dev = np.zeros(2 * jmx)
     dev[r_ice] = -Cw_delt + k[ice]
-    Mt = M + np.diag(dev)
 
-    I = np.linalg.solve(Mt, r)
+    if M_band is not None:
+        # M couples each cell only to its neighbours, so it has two diagonals on each
+        # side of the main one. Solving it in banded form gives the same answer faster.
+        ab = M_band.copy()
+        ab[2] += dev
+        I = solve_banded((2, 2), ab, r, overwrite_ab=True, check_finite=False)
+    else:
+        Mt = M + np.diag(dev)
+        I = np.linalg.solve(Mt, r)
     T = I.copy()
     T[r_ice] = np.minimum(Tfrz, I[r_ice])
 
@@ -608,10 +624,13 @@ def build_setup(cfg):
     fl = build_land_fraction(phi, land, jmx)
     fw = 1.0 - fl
 
-    insol, distance, delt_arr = sun(xfull, obl, ecc, per, star)
+    solar_constant = float(cfg.get('solar_constant', 2808 / 2.0754))
+    insol, distance, delt_arr = sun(xfull, obl, ecc, per, star, solar_constant)
     # insol_base is the insolation at scaleQ = 1. The flux scaling is applied once, here.
     insol_base = np.concatenate((insol[:, -1][:, np.newaxis], insol[:, :-1]), axis=1)
     dec = np.concatenate((delt_arr[-1:], delt_arr[:-1]))   # declination on each day, degrees
+    if not float(cfg.get('zenithflag', 1.0)):
+        dec = np.zeros_like(dec)                           # albedo depends on latitude only
     insol = scaleQ * insol_base
 
     Cw_delt = Cw / delt
@@ -642,6 +661,15 @@ def build_setup(cfg):
         M[2 * j, 2 * j + 1] = -nu_fl[j]
         M[2 * j + 1, 1:2 * jmx:2] = Mw[j, :]
         M[2 * j + 1, 2 * j] = -nu_fw[j]
+
+    # the same matrix in banded storage, for the fast solve in icebalance
+    n2 = 2 * jmx
+    M_band = np.zeros((5, n2))
+    for offset in range(-2, 3):
+        M_band[2 - offset, max(offset, 0):n2 + min(offset, 0)] = np.diagonal(M, offset)
+    in_band = np.abs(np.subtract.outer(np.arange(n2), np.arange(n2))) <= 2
+    if np.any(M[~in_band] != 0.0):
+        M_band = None   # not expected; fall back to the general solver
 
     broadband_params = get_broadband_albedo(star)
     A_o = broadband_params['A_o']
@@ -717,6 +745,7 @@ def build_setup(cfg):
         'distance': distance,
         'delt_arr': delt_arr,
         'dec': dec,
+        'solar_constant': solar_constant,
         'Cw_delt': Cw_delt,
         'Cl_delt': Cl_delt,
         'delt_Lf': delt_Lf,
@@ -731,6 +760,7 @@ def build_setup(cfg):
         'Mw': Mw,
         'Ml': Ml,
         'M': M,
+        'M_band': M_band,
         'clim_alb_l': clim_alb_l,
         'clim_alb_w': clim_alb_w,
         'thedays': thedays,
@@ -800,6 +830,7 @@ def seasonal_run(cfg=None):
     Cw = setup_data['Cw']
     Diff_Op = setup_data['Diff_Op']
     M = setup_data['M']
+    M_band = setup_data['M_band']
     h = np.zeros(jmx)
     clim_alb_l = setup_data.get('clim_alb_l', None)
     clim_alb_w = setup_data.get('clim_alb_w', None)
@@ -838,7 +869,7 @@ def seasonal_run(cfg=None):
 
         T, L, W, Fnet = icebalance(
             jmx, ice, notice, conduct, h, Tfrz, rprimew,
-            Cw_delt, M, r, Diff_Op, B, nu_fw, fw, delx, Cw, W
+            Cw_delt, M, r, Diff_Op, B, nu_fw, fw, delx, Cw, W, M_band
         )
     else:
         ice = np.array([], dtype=int)
@@ -891,7 +922,7 @@ def seasonal_run(cfg=None):
             notice = np.where(h <= 0.001)[0]
             T, L, W, Fnet = icebalance(
                 jmx, ice, notice, conduct, h, Tfrz, rprimew,
-                Cw_delt, M, r, Diff_Op, B, nu_fw, fw, delx, Cw, W
+                Cw_delt, M, r, Diff_Op, B, nu_fw, fw, delx, Cw, W, M_band
             )
             if len(ice):
                 h[ice] = np.maximum(0.0, h[ice] - delt_Lf * Fnet[ice])
@@ -1081,12 +1112,73 @@ def co2_run(cfg=None, start='warm'):
     return results, bool(has_co2)
 
 
+def ice_edges(results, min_fraction_of_year=0.5):
+    """Latitude extent of sea ice and of ice-covered land in each hemisphere.
+
+    This uses the model's own ice. A latitude band has sea ice when its sea ice
+    thickness is above zero, and has ice-covered land when its land temperature
+    is at or below -2 deg C, where the land albedo switches to the ice value. A
+    band counts as ice covered when that holds for at least
+    ``min_fraction_of_year`` of the final year. Edges are placed on the
+    boundaries between latitude bands.
+
+    The eight values follow the FILLET Protocol v1.1 output columns.
+
+    Args:
+        results: Output of :func:`seasonal_run`.
+        min_fraction_of_year: Fraction of the final year a band must be ice
+            covered to count.
+
+    Returns:
+        A dictionary with the keys ``'NMaxLand'``, ``'NMinLand'``,
+        ``'NMaxSea'``, ``'NMinSea'``, ``'SMaxLand'``, ``'SMinLand'``,
+        ``'SMaxSea'`` and ``'SMinSea'``, in degrees. In the north, Max is the
+        poleward limit of the ice and Min the equatorward limit. In the south
+        the latitudes are negative, so Max is the equatorward limit and Min the
+        poleward limit. Both values are ``nan`` where a hemisphere has no ice
+        of that kind.
+    """
+    setup = results['setup']
+    jmx = setup['jmx']
+    half = jmx // 2
+    # boundaries of the latitude bands, which are evenly spaced in sin(latitude)
+    bounds = np.degrees(np.arcsin(np.clip(np.linspace(-1.0, 1.0, jmx + 1), -1.0, 1.0)))
+
+    if results['h_ann'] is not None:
+        sea = np.mean(results['h_ann'] > 0.001, axis=1) >= min_fraction_of_year
+    else:
+        sea = np.mean(results['Wann'] <= -2.0, axis=1) >= min_fraction_of_year
+    land = np.mean(results['Lann'] <= -2.0, axis=1) >= min_fraction_of_year
+
+    edges = {}
+    for name, icy in (('Land', land), ('Sea', sea)):
+        north = np.where(icy[half:])[0] + half
+        south = np.where(icy[:half])[0]
+        if len(north):
+            edges['NMax' + name] = float(bounds[north.max() + 1])
+            edges['NMin' + name] = float(bounds[north.min()])
+        else:
+            edges['NMax' + name] = edges['NMin' + name] = float('nan')
+        if len(south):
+            edges['SMax' + name] = float(bounds[south.max() + 1])
+            edges['SMin' + name] = float(bounds[south.min()])
+        else:
+            edges['SMax' + name] = edges['SMin' + name] = float('nan')
+    order = ('NMaxLand', 'NMinLand', 'NMaxSea', 'NMinSea', 'SMaxLand', 'SMinLand', 'SMaxSea', 'SMinSea')
+    return {key: edges[key] for key in order}
+
+
 def mean_iceline(results, threshold=-2.013):
     """Mean latitude of the ice line in the northern hemisphere over the final year.
 
     The ice line on each day is the latitude where the ocean temperature crosses
     the threshold. It is 0 when the whole hemisphere is frozen and 90 when it is
     ice free.
+
+    This is the definition used in Venkatesan et al. (2025). Sea ice at its
+    melting point sits at exactly -2 deg C, above the default threshold, so this
+    line usually lies poleward of the edge of the sea ice. Use :func:`ice_edges`
+    for the extent of the ice itself.
 
     Args:
         results: Output of :func:`seasonal_run`.

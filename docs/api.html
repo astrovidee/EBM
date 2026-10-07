@@ -20,7 +20,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Comparison with Venkatesan et al. (2025)" href="validation.html" /> 
+    <link rel="prev" title="Using the model for FILLET" href="fillet.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -74,6 +74,13 @@
 <li class="toctree-l2"><a class="reference internal" href="validation.html#how-this-model-relates-to-the-matlab-model">How this model relates to the MATLAB model</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="fillet.html">Using the model for FILLET</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fillet.html#settings-for-the-protocol">Settings for the protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fillet.html#what-the-model-cannot-do">What the model cannot do</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fillet.html#findings-of-the-code-audit">Findings of the code audit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fillet.html#check-against-the-audit-s-runs">Check against the audit’s runs</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Function reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#running-the-model">Running the model</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#EBM_one_file.seasonal_run"><code class="docutils literal notranslate"><span class="pre">seasonal_run()</span></code></a></li>
@@ -83,6 +90,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#summarizing-a-run">Summarizing a run</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#EBM_one_file.final_year_annual_means"><code class="docutils literal notranslate"><span class="pre">final_year_annual_means()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#EBM_one_file.ice_edges"><code class="docutils literal notranslate"><span class="pre">ice_edges()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#EBM_one_file.mean_iceline"><code class="docutils literal notranslate"><span class="pre">mean_iceline()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#EBM_one_file.co2_ice_fraction"><code class="docutils literal notranslate"><span class="pre">co2_ice_fraction()</span></code></a></li>
 </ul>
@@ -228,12 +236,47 @@ each cell in degrees.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="EBM_one_file.ice_edges">
+<span class="sig-prename descclassname"><span class="pre">EBM_one_file.</span></span><span class="sig-name descname"><span class="pre">ice_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_fraction_of_year</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/EBM_one_file.html#ice_edges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#EBM_one_file.ice_edges" title="Link to this definition"></a></dt>
+<dd><p>Latitude extent of sea ice and of ice-covered land in each hemisphere.</p>
+<p>This uses the model’s own ice. A latitude band has sea ice when its sea ice
+thickness is above zero, and has ice-covered land when its land temperature
+is at or below -2 deg C, where the land albedo switches to the ice value. A
+band counts as ice covered when that holds for at least
+<code class="docutils literal notranslate"><span class="pre">min_fraction_of_year</span></code> of the final year. Edges are placed on the
+boundaries between latitude bands.</p>
+<p>The eight values follow the FILLET Protocol v1.1 output columns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> – Output of <a class="reference internal" href="#EBM_one_file.seasonal_run" title="EBM_one_file.seasonal_run"><code class="xref py py-func docutils literal notranslate"><span class="pre">seasonal_run()</span></code></a>.</p></li>
+<li><p><strong>min_fraction_of_year</strong> – Fraction of the final year a band must be ice
+covered to count.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary with the keys <code class="docutils literal notranslate"><span class="pre">'NMaxLand'</span></code>, <code class="docutils literal notranslate"><span class="pre">'NMinLand'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'NMaxSea'</span></code>, <code class="docutils literal notranslate"><span class="pre">'NMinSea'</span></code>, <code class="docutils literal notranslate"><span class="pre">'SMaxLand'</span></code>, <code class="docutils literal notranslate"><span class="pre">'SMinLand'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'SMaxSea'</span></code> and <code class="docutils literal notranslate"><span class="pre">'SMinSea'</span></code>, in degrees. In the north, Max is the
+poleward limit of the ice and Min the equatorward limit. In the south
+the latitudes are negative, so Max is the equatorward limit and Min the
+poleward limit. Both values are <code class="docutils literal notranslate"><span class="pre">nan</span></code> where a hemisphere has no ice
+of that kind.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="EBM_one_file.mean_iceline">
 <span class="sig-prename descclassname"><span class="pre">EBM_one_file.</span></span><span class="sig-name descname"><span class="pre">mean_iceline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-2.013</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/EBM_one_file.html#mean_iceline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#EBM_one_file.mean_iceline" title="Link to this definition"></a></dt>
 <dd><p>Mean latitude of the ice line in the northern hemisphere over the final year.</p>
 <p>The ice line on each day is the latitude where the ocean temperature crosses
 the threshold. It is 0 when the whole hemisphere is frozen and 90 when it is
 ice free.</p>
+<p>This is the definition used in Venkatesan et al. (2025). Sea ice at its
+melting point sits at exactly -2 deg C, above the default threshold, so this
+line usually lies poleward of the edge of the sea ice. Use <a class="reference internal" href="#EBM_one_file.ice_edges" title="EBM_one_file.ice_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">ice_edges()</span></code></a>
+for the extent of the ice itself.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -319,7 +362,7 @@ paleo-continents.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="EBM_one_file.sun">
-<span class="sig-prename descclassname"><span class="pre">EBM_one_file.</span></span><span class="sig-name descname"><span class="pre">sun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ecc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">long</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">star</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/EBM_one_file.html#sun"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#EBM_one_file.sun" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">EBM_one_file.</span></span><span class="sig-name descname"><span class="pre">sun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ecc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">long</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">star</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solar_constant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1352.9921942758021</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/EBM_one_file.html#sun"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#EBM_one_file.sun" title="Link to this definition"></a></dt>
 <dd><p>Daily mean insolation over one orbit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -329,6 +372,7 @@ paleo-continents.</p></li>
 <li><p><strong>ecc</strong> – Orbital eccentricity.</p></li>
 <li><p><strong>long</strong> – Longitude of periastron in degrees.</p></li>
 <li><p><strong>star</strong> – Host star type. Not used in the calculation.</p></li>
+<li><p><strong>solar_constant</strong> – Stellar flux at the planet’s semi-major axis in W/m^2.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -401,7 +445,7 @@ year for a planet with zero obliquity.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="EBM_one_file.icebalance">
-<span class="sig-prename descclassname"><span class="pre">EBM_one_file.</span></span><span class="sig-name descname"><span class="pre">icebalance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jmx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conduct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Tfrz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rprimew</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Cw_delt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Diff_Op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nu_fw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Cw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">W</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/EBM_one_file.html#icebalance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#EBM_one_file.icebalance" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">EBM_one_file.</span></span><span class="sig-name descname"><span class="pre">icebalance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jmx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conduct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Tfrz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rprimew</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Cw_delt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Diff_Op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nu_fw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Cw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">W</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M_band</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/EBM_one_file.html#icebalance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#EBM_one_file.icebalance" title="Link to this definition"></a></dt>
 <dd><p>Solve one time step where sea ice is present.</p>
 <p>The surface temperature of ice-covered ocean is found from the balance of
 radiation, heat transport and heat conducted through ice of thickness <code class="docutils literal notranslate"><span class="pre">h</span></code>.</p>
@@ -431,7 +475,7 @@ the full non-linear law.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="validation.html" class="btn btn-neutral float-left" title="Comparison with Venkatesan et al. (2025)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="fillet.html" class="btn btn-neutral float-left" title="Using the model for FILLET" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

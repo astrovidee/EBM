@@ -102,6 +102,8 @@ compares the model with the results of Venkatesan et al. (2025).
 ## What is in this repository
 
 - `EBM_one_file.py`: the whole model in one file.
+- `fillet/`: scripts, results and a figure for the FILLET intercomparison of
+  energy balance models.
 - `source/`: the source of the documentation site.
 - `docs/`: the built documentation site, served at https://astrovidee.github.io/EBM/
 

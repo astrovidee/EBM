@@ -75,6 +75,13 @@
 <li class="toctree-l2"><a class="reference internal" href="validation.html#how-this-model-relates-to-the-matlab-model">How this model relates to the MATLAB model</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="fillet.html">Using the model for FILLET</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fillet.html#settings-for-the-protocol">Settings for the protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fillet.html#what-the-model-cannot-do">What the model cannot do</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fillet.html#findings-of-the-code-audit">Findings of the code audit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fillet.html#check-against-the-audit-s-runs">Check against the audit’s runs</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">Function reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="api.html#running-the-model">Running the model</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api.html#EBM_one_file.seasonal_run"><code class="docutils literal notranslate"><span class="pre">seasonal_run()</span></code></a></li>
@@ -84,6 +91,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#summarizing-a-run">Summarizing a run</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api.html#EBM_one_file.final_year_annual_means"><code class="docutils literal notranslate"><span class="pre">final_year_annual_means()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api.html#EBM_one_file.ice_edges"><code class="docutils literal notranslate"><span class="pre">ice_edges()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api.html#EBM_one_file.mean_iceline"><code class="docutils literal notranslate"><span class="pre">mean_iceline()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api.html#EBM_one_file.co2_ice_fraction"><code class="docutils literal notranslate"><span class="pre">co2_ice_fraction()</span></code></a></li>
 </ul>
@@ -193,7 +201,7 @@ fractions, and <code class="docutils literal notranslate"><span class="pre">setu
 </tr>
 </tbody>
 </table>
-<p>Two functions summarize a run:</p>
+<p>Three functions summarize a run:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">means</span> <span class="o">=</span> <span class="n">ebm</span><span class="o">.</span><span class="n">final_year_annual_means</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
 <span class="n">means</span><span class="p">[</span><span class="s2">"Tglob"</span><span class="p">]</span>     <span class="c1"># global mean temperature in kelvin</span>
 <span class="n">means</span><span class="p">[</span><span class="s2">"T_avg"</span><span class="p">]</span>     <span class="c1"># annual mean temperature at each latitude, deg C</span>
@@ -201,10 +209,13 @@ fractions, and <code class="docutils literal notranslate"><span class="pre">setu
 <span class="n">means</span><span class="p">[</span><span class="s2">"lat"</span><span class="p">]</span>       <span class="c1"># latitude of each cell in degrees</span>
 
 <span class="n">ebm</span><span class="o">.</span><span class="n">mean_iceline</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>   <span class="c1"># mean ice-line latitude in degrees</span>
+<span class="n">ebm</span><span class="o">.</span><span class="n">ice_edges</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>      <span class="c1"># latitude limits of sea ice and ice-covered land</span>
 </pre></div>
 </div>
 <p>The ice line is 0 when the hemisphere is fully frozen and 90 when it is ice
-free.</p>
+free. It is the latitude where the ocean crosses -2.013 deg C, as in
+Venkatesan et al. (2025), and usually lies poleward of the sea ice.
+<code class="docutils literal notranslate"><span class="pre">ice_edges</span></code> gives the extent of the ice itself, from the sea ice thickness.</p>
 </section>
 <section id="warm-and-cold-starts">
 <h2>Warm and cold starts<a class="headerlink" href="#warm-and-cold-starts" title="Link to this heading"></a></h2>
