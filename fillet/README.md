@@ -16,7 +16,6 @@ python run_fillet.py ben exp3 # only the named parts: ben, exp1, exp2, exp3, exp
 python plot_fillet.py
 ```
 
-![FILLET benchmarks and experiments](fillet_shields_bitz.png)
 
 ## Configuration
 
