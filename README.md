@@ -88,6 +88,6 @@ https://doi.org/10.5281/zenodo.16813585
 
 MIT License. Questions and bug reports are welcome through GitHub issues.
 
-![](EBM_new.png)
+
 
 
