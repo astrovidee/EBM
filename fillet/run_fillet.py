@@ -15,8 +15,8 @@ to this script. With --albedo native they use the model's own stellar-weighted
 albedos and write to Results_native_albedo/shields_bitz/.
 
 Every setting the protocol prescribes is set here explicitly. Nothing relies
-on the model's defaults. See README.md in this folder for what is declared as
-a departure from the protocol.
+on the model's defaults. See the README at the top of the repository for what
+is declared as a departure from the protocol.
 """
 import os
 os.environ.setdefault("OMP_NUM_THREADS", "1")       # one thread per case; cases run in parallel

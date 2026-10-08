@@ -7,23 +7,16 @@ Plot the FILLET benchmarks and experiments written by run_fillet.py.
 It also prints the summary numbers used in the figure.
 """
 import argparse
-import glob
 import os
 
 os.environ.setdefault("MPLBACKEND", "Agg")
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import font_manager
 from matplotlib.colors import ListedColormap
 from matplotlib.patches import Patch
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RES = os.path.join(HERE, "Results", "shields_bitz")
-
-# Use the Lato fonts that ship with the documentation if they are there, so the
-# figure looks the same on every machine. Otherwise fall back to a system sans.
-for path in glob.glob(os.path.join(HERE, "..", "docs", "_static", "fonts", "Lato", "*.ttf")):
-    font_manager.fontManager.addfont(path)
 
 # Ink and surface
 SURFACE, INK, INK2, MUTED, GRID, AXIS = "#fcfcfb", "#0b0b0b", "#52514e", "#898781", "#e6e5df", "#c3c2b7"
