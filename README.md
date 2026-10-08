@@ -5,7 +5,7 @@
 A one-dimensional, seasonal energy balance model in Python for the climates of
 rocky planets around F, G, K and M stars, including planets on eccentric orbits
 and planets cold enough for CO2 ice to form. It is a Python version of the
-MATLAB model written by Cecilia Bitz, as used in Shields et al. (2013) and
+MATLAB model written by Cecilia Bitz, and a modified version was used in
 Venkatesan et al. (2025). In the
 [FILLET intercomparison](https://doi.org/10.3847/PSJ/ae1c3c) it is called
 Shields-Bitz. It solves
