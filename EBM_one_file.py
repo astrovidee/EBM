@@ -58,6 +58,12 @@ DEFAULTS = {
     # 1 = the albedo of ice-free land and ocean follows the star's declination through the year,
     # as in the original MATLAB model. 0 = it depends on latitude only.
     "zenithflag": 1.0,
+    # Surface albedos. None = the model's own values for the host star (see get_broadband_albedo),
+    # with the zenith-angle term on ice-free land and ocean. A number gives that surface one
+    # constant albedo instead. The FILLET protocol prescribes land 0.3, ocean 0.2, ice 0.6.
+    "albedo_land": None,
+    "albedo_ocean": None,
+    "albedo_ice": None,
     # Outgoing longwave radiation (OLR):
     #   "linear"  = A + B*T, with T in deg C (North & Coakley 1979)
     #   "spiegel" = sigma*T^4 / (1 + 0.75*tau), tau = 0.79*(T/273 K)^3 (Spiegel et al. 2008)
@@ -238,7 +244,8 @@ def get_co2_albedo(star, grain=200):
 
 # ALBEDO FEEDBACK
 
-def albedo_seasonal(L, W, x, A_o, A_l, A_50, A_co2=None, T_co2=None, dec=0.0):
+def albedo_seasonal(L, W, x, A_o, A_l, A_50, A_co2=None, T_co2=None, dec=0.0,
+                    land_const=None, ocean_const=None):
     """Albedo of land and ocean at each latitude.
 
     Ice-free surfaces use the land and ocean albedos with a dependence on the
@@ -251,6 +258,9 @@ def albedo_seasonal(L, W, x, A_o, A_l, A_50, A_co2=None, T_co2=None, dec=0.0):
         x: sin(latitude) of each grid cell.
         dec: Declination of the star in degrees on this day. It is zero all
             year for a planet with zero obliquity.
+        land_const: If given, the albedo of ice-free land, the same at every
+            latitude and with no zenith-angle term.
+        ocean_const: The same for ice-free ocean.
 
     Returns:
         ``(alb_l, alb_w)``, the land and ocean albedo at each latitude.
@@ -262,6 +272,10 @@ def albedo_seasonal(L, W, x, A_o, A_l, A_50, A_co2=None, T_co2=None, dec=0.0):
         sin2_zenith = np.sin(zenith)**2
     alb_w = A_o + 0.08 * (3 * sin2_zenith - 1) / 2 - 0.05
     alb_l = A_l + 0.08 * (3 * sin2_zenith - 1) / 2 + 0.05
+    if ocean_const is not None:
+        alb_w = np.full_like(alb_w, ocean_const)
+    if land_const is not None:
+        alb_l = np.full_like(alb_l, land_const)
 
     idx_w = np.where(W <= -2)[0]
     idx_l = np.where(L <= -2)[0]
@@ -676,6 +690,20 @@ def build_setup(cfg):
     A_l = broadband_params['A_l']
     A_50 = broadband_params['A_50']
 
+    def _albedo_setting(name):
+        value = cfg.get(name)
+        if value is None:
+            return None
+        value = float(value)
+        if not 0.0 <= value <= 1.0:
+            raise ValueError(f"{name} must be between 0 and 1, or None for the model's own value.")
+        return value
+
+    land_const = _albedo_setting('albedo_land')
+    ocean_const = _albedo_setting('albedo_ocean')
+    if _albedo_setting('albedo_ice') is not None:
+        A_50 = _albedo_setting('albedo_ice')
+
     clim_alb_l = None
     clim_alb_w = None
     thedays = None
@@ -690,7 +718,8 @@ def build_setup(cfg):
             n = 0
             for t in thedays:
                 alb_l, alb_w = albedo_seasonal(Lann[:, n], Wann[:, n], xfull, A_o, A_l, A_50,
-                                               dec=float(dec[int(t) - 1]))
+                                               dec=float(dec[int(t) - 1]),
+                                               land_const=land_const, ocean_const=ocean_const)
                 idx = int(t) - 1
                 clim_alb_l[:, idx] = alb_l
                 clim_alb_w[:, idx] = alb_w
@@ -767,6 +796,8 @@ def build_setup(cfg):
         'A_o': A_o,
         'A_l': A_l,
         'A_50': A_50,
+        'albedo_land_const': land_const,
+        'albedo_ocean_const': ocean_const,
         'olr': olr,
         'co2_ice': co2_ice,
         'A_co2': A_co2,
@@ -841,6 +872,8 @@ def seasonal_run(cfg=None):
     A_o = setup_data['A_o']
     A_l = setup_data['A_l']
     A_50 = setup_data['A_50']
+    land_const = setup_data['albedo_land_const']
+    ocean_const = setup_data['albedo_ocean_const']
     A_co2 = setup_data['A_co2']
     T_co2 = setup_data['T_co2']
     olr = setup_data['olr']
@@ -859,7 +892,8 @@ def seasonal_run(cfg=None):
             alb_w = clim_alb_w[:, int(thedays_setup[0]) - 1]
         else:
             alb_l, alb_w = albedo_seasonal(L, W, xfull, A_o, A_l, A_50, A_co2, T_co2,
-                                           dec=float(dec[int(ts) - 1]))
+                                           dec=float(dec[int(ts) - 1]),
+                                           land_const=land_const, ocean_const=ocean_const)
 
         S = insol[:, int(ts) - 1]
         rprimel = olr_constant(olr, A, B, L) - ((1 - alb_l) * S)
@@ -901,7 +935,8 @@ def seasonal_run(cfg=None):
             alb_w = clim_alb_w[:, nn - 1]
         else:
             alb_l, alb_w = albedo_seasonal(L, W, xfull, A_o, A_l, A_50, A_co2, T_co2,
-                                           dec=float(dec[day_idx - 1]))
+                                           dec=float(dec[day_idx - 1]),
+                                           land_const=land_const, ocean_const=ocean_const)
 
         S = insol[:, day_idx - 1]
         ghw = np.where(W > 46.2)[0]

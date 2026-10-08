@@ -5,9 +5,14 @@ the results in the layout of the FILLET repository (projectcuisines/fillet).
     python run_fillet.py              # everything, about 25 minutes on 2 cores
     python run_fillet.py ben exp3     # only the named parts
     python run_fillet.py --workers 4
+    python run_fillet.py --albedo native   # the same runs with the model's own albedos
 
 Parts: ben (Benchmarks 1-3), exp1, exp2, exp3, exp4.
-Output goes to Results/shields_bitz/ next to this script.
+
+Benchmarks 2 and 3 and the experiments use the surface albedos of protocol
+Table 4 (land 0.3, ocean 0.2, ice 0.6) and write to Results/shields_bitz/ next
+to this script. With --albedo native they use the model's own stellar-weighted
+albedos and write to Results_native_albedo/shields_bitz/.
 
 Every setting the protocol prescribes is set here explicitly. Nothing relies
 on the model's defaults. See README.md in this folder for what is declared as
@@ -48,11 +53,15 @@ PROTOCOL = dict(
     Cl=1.0e7 / SECONDS_PER_YEAR,        # land heat capacity 1e7 J m^-2 K^-1
     Cw=4.0e8 / SECONDS_PER_YEAR,        # ocean heat capacity 4e8 J m^-2 K^-1
     A=203.3, B=2.09, olr="linear",      # the model's published longwave law
-    zenithflag=1.0,                     # albedo follows the star's declination
+    albedo_land=0.3, albedo_ocean=0.2, albedo_ice=0.6,   # protocol Table 4: constants, no zenith-angle term
+    zenithflag=1.0,                     # only matters with --albedo native: albedo follows the star's declination
     coldstart=0.0,
     jmx=120, runlength=100,
 )
 XCO2_DEFAULT = 280.0
+
+# --albedo native: the model's own stellar-weighted albedos, with its zenith-angle term
+NATIVE_ALBEDO = dict(albedo_land=None, albedo_ocean=None, albedo_ice=None)
 
 # Benchmark 1 (pre-industrial Earth, tuning allowed): the model's own Earth
 # set-up, with the longwave constant A tuned to give 288 K.
@@ -60,6 +69,7 @@ EARTH = dict(
     star="G", solar_constant=1361.0, scaleQ=1.0, ecc=0.0, obl=23.5,
     land="smooth", hadleyflag=1.0, Dmag=0.44, Cl=0.45, Cw=9.8,
     A=203.3, B=2.09, olr="linear", zenithflag=1.0, coldstart=0.0,
+    albedo_land=None, albedo_ocean=None, albedo_ice=None,   # the model's own albedos
     jmx=120, runlength=100,
 )
 BENCHMARK1_TARGET_K = 288.0
@@ -165,17 +175,33 @@ MODEL_NOTES = """\
 # Code: Shields-Bitz EBM (EBM_one_file.py, https://github.com/astrovidee/EBM), version {version}
 # Grid: {jmx} cells of equal area (evenly spaced in sin latitude). Global means are plain means over cells.
 # Surfaces: separate land and ocean temperatures at each latitude; thermodynamic sea ice.
-# Albedo: stellar-weighted values for a G star (ocean 0.319, land 0.415, ice 0.514) with a zenith-angle term
-#   on ice-free surfaces that follows the star's declination (zenithflag = 1). The protocol's 0.3/0.2/0.6
-#   cannot be set in this model. The model has no atmosphere, so Asurf and ATOA are the same. Both are
-#   unweighted time means over the final orbit.
-# Longwave: A + B*T with T in deg C. No CO2 term (see the Experiment 4 header for how CO2 is handled there).
+{albedo_note}# Longwave: A + B*T with T in deg C. No CO2 term (see the Experiment 4 header for how CO2 is handled there).
 # Sea ice has no heat capacity in this model (the protocol lists 1e7 J m^-2 K^-1).
 # Every case starts from the prescribed warm or cold state. No case continues from another.
 #   Warm start: 7.5 + 20*(1 - 2*sin(lat)^2) deg C. Cold start: 40 deg C colder, with 2 m of sea ice.
 # Run length: {years} orbits of 360 steps; a case whose global mean still changed by more than
 #   {drift_limit:g} K over its final orbit was rerun for {long_years} orbits.
 """
+
+ALBEDO_PRESCRIBED = """\
+# Albedo: constant surface albedos, land {land:g}, ocean {ocean:g}, ice {ice:g} (protocol Table 4), with no
+#   zenith-angle term. Land and ocean take the ice value at or below -2 C. The model has no atmosphere, so
+#   Asurf and ATOA are the same. Both are unweighted time means over the final orbit.
+"""
+
+ALBEDO_NATIVE = """\
+# Albedo: the model's own stellar-weighted values for a G star (ocean 0.319, land 0.415, ice 0.514), not the
+#   protocol's 0.2/0.3/0.6, with a zenith-angle term on ice-free surfaces that follows the star's
+#   declination (zenithflag = 1). The model has no atmosphere, so Asurf and ATOA are the same. Both are
+#   unweighted time means over the final orbit.
+"""
+
+
+def albedo_note(base):
+    if base.get("albedo_land") is None:
+        return ALBEDO_NATIVE
+    return ALBEDO_PRESCRIBED.format(land=base["albedo_land"], ocean=base["albedo_ocean"], ice=base["albedo_ice"])
+
 
 ICE_NOTE = """\
 # Describe how ice line latitude is determined: from the model's own ice. Sea: sea ice thickness above zero
@@ -200,7 +226,8 @@ def write_global(folder, title, rows, base, extra=""):
     with open(os.path.join(OUT, folder, "global_output.dat"), "w") as f:
         f.write(f"# Name of benchmark/experiment: {title}\n")
         f.write(MODEL_NOTES.format(version=VERSION, jmx=base["jmx"], years=base["runlength"],
-                                   drift_limit=DRIFT_LIMIT, long_years=base["runlength"] * LONG_RUN_FACTOR))
+                                   drift_limit=DRIFT_LIMIT, long_years=base["runlength"] * LONG_RUN_FACTOR,
+                                   albedo_note=albedo_note(base)))
         f.write(f"# Diffusion: {'constant D' if not base['hadleyflag'] else 'Hadley profile, D = Diff*[1 + 9*exp(-(sin(lat)/sin 25)^6)]'}."
                 f" Heat capacities: land {base['Cl'] * SECONDS_PER_YEAR:.3g}, ocean {base['Cw'] * SECONDS_PER_YEAR:.3g} J m^-2 K^-1.\n")
         f.write(f"# Land: {base['land']}. Instellation unit: 1361 W m^-2.\n")
@@ -256,12 +283,16 @@ def do_benchmarks(pool):
               f" {edge_values(r['edges'])[2]:.1f} deg, OLR = {r['OLRglob']:.1f} W/m2")
 
 
-def do_sweep(pool, folder, title, insts, obls, coldstart):
+BIFURCATION_NOTE = ("# Configuration: that of Benchmark 2 (untuned), so that Experiments 1 to 4 describe one model."
+                    " Protocol v1.0 words\n#   Experiments 3 and 4 as starting from Benchmark 1.\n")
+
+
+def do_sweep(pool, folder, title, insts, obls, coldstart, extra=""):
     # instellation is the outer loop, obliquity the inner one
     jobs = [dict(key=(s, o), cfg=dict(PROTOCOL, scaleQ=float(s), obl=float(o), coldstart=coldstart))
             for s in insts for o in obls]
     rows = pool.map(run_case, jobs, chunksize=1)
-    write_global(folder, title, rows, PROTOCOL)
+    write_global(folder, title, rows, PROTOCOL, extra=extra)
     print(f"{folder}: {len(rows)} cases written")
 
 
@@ -271,8 +302,10 @@ def do_exp4(pool):
         jobs = [dict(key=x, xco2=float(x), cfg=dict(PROTOCOL, A=longwave_constant_for_co2(x), coldstart=cold)) for x in xco2]
         rows = pool.map(run_case, jobs, chunksize=1)
         write_global(folder, f"Experiment 4 (bifurcation, varying CO2, {name})", rows, PROTOCOL,
-                     extra="# CO2: the model has no CO2 term. A is shifted by the change in the Williams & Kasting (1997) OLR fit\n"
-                           "#   between 280 ppm and each CO2 value, at 288 K and 1 bar; B is unchanged. At 280 ppm the model is\n"
+                     extra=BIFURCATION_NOTE +
+                           "# CO2: the model has no CO2 term. A is shifted by the change in the Williams & Kasting (1997) OLR fit\n"
+                           "#   between 280 ppm and each CO2 value, at 288 K and 1 bar. B is held at the model's value: in that fit\n"
+                           "#   it changes by less than 0.04 W m^-2 K^-1 between 10 and 100,000 ppm. At 280 ppm the model is\n"
                            "#   identical to the one used in Experiments 1 to 3. The fit is extrapolated below 10 ppm.\n")
         print(f"{folder}: {len(rows)} cases written")
 
@@ -281,7 +314,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("parts", nargs="*", default=["ben", "exp1", "exp2", "exp3", "exp4"])
     parser.add_argument("--workers", type=int, default=os.cpu_count())
+    parser.add_argument("--albedo", choices=["protocol", "native"], default="protocol",
+                        help="protocol: land 0.3, ocean 0.2, ice 0.6 (default). native: the model's own albedos.")
     args = parser.parse_args()
+    global OUT
+    if args.albedo == "native":
+        PROTOCOL.update(NATIVE_ALBEDO)
+        OUT = os.path.join(HERE, "Results_native_albedo", "shields_bitz")
+    print(f"Albedos for Benchmarks 2-3 and the experiments: {args.albedo}. Writing to {os.path.relpath(OUT, HERE)}/")
     obls = grid(0, 90, 10)
     with Pool(args.workers) as pool:
         if "ben" in args.parts:
@@ -291,8 +331,10 @@ def main():
         if "exp2" in args.parts:
             do_sweep(pool, "exp2", "Experiment 2 (G dwarf, cold start)", grid(1.05, 1.5, 0.025), obls, 1.0)
         if "exp3" in args.parts:
-            do_sweep(pool, "exp3_warm", "Experiment 3 (bifurcation, varying S, warm start)", grid(0.8, 1.5, 0.0125), [23.5], 0.0)
-            do_sweep(pool, "exp3_cold", "Experiment 3 (bifurcation, varying S, cold start)", grid(0.8, 1.5, 0.0125), [23.5], 1.0)
+            do_sweep(pool, "exp3_warm", "Experiment 3 (bifurcation, varying S, warm start)", grid(0.8, 1.5, 0.0125), [23.5], 0.0,
+                     extra=BIFURCATION_NOTE)
+            do_sweep(pool, "exp3_cold", "Experiment 3 (bifurcation, varying S, cold start)", grid(0.8, 1.5, 0.0125), [23.5], 1.0,
+                     extra=BIFURCATION_NOTE)
         if "exp4" in args.parts:
             do_exp4(pool)
 

@@ -1,11 +1,12 @@
 """
 Plot the FILLET benchmarks and experiments written by run_fillet.py.
 
-    python plot_fillet.py
+    python plot_fillet.py                   # Results/shields_bitz/ -> fillet_shields_bitz.png
+    python plot_fillet.py --albedo native   # Results_native_albedo/shields_bitz/ -> fillet_shields_bitz_native_albedo.png
 
-Reads Results/shields_bitz/ next to this script and writes
-fillet_shields_bitz.png. It also prints the summary numbers used in the figure.
+It also prints the summary numbers used in the figure.
 """
+import argparse
 import glob
 import os
 
@@ -126,6 +127,15 @@ def branches(ax, warm, cold, xkey, xlabel, logx=False):
 
 
 def main():
+    global RES
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--albedo", choices=["protocol", "native"], default="protocol",
+                        help="which set of runs to plot (see run_fillet.py)")
+    args = parser.parse_args()
+    native = args.albedo == "native"
+    if native:
+        RES = os.path.join(HERE, "Results_native_albedo", "shields_bitz")
+
     fig, axes = plt.subplots(2, 3, figsize=(14.5, 9), layout="constrained")
     fig.get_layout_engine().set(w_pad=0.2, h_pad=0.22, wspace=0.05, hspace=0.07)
     (a, b, c), (d, e, f) = axes
@@ -177,8 +187,9 @@ def main():
     titled(f, "Experiment 4: CO$_2$", f"Snowball up to {glac4:.2g} ppm  ·  thaws from {round(degl4, -1):,.0f} ppm")
     print(f"Experiment 4: warm start is a snowball up to {glac4:.3g} ppm; cold start thaws from {degl4:.3g} ppm")
 
-    fig.suptitle("Shields-Bitz EBM: FILLET benchmarks and experiments", x=0.012, ha="left", fontsize=16, fontweight="bold")
-    out = os.path.join(HERE, "fillet_shields_bitz.png")
+    fig.suptitle("Shields-Bitz EBM: FILLET benchmarks and experiments"
+                 + (", with the model's own albedos" if native else ""), x=0.012, ha="left", fontsize=16, fontweight="bold")
+    out = os.path.join(HERE, "fillet_shields_bitz_native_albedo.png" if native else "fillet_shields_bitz.png")
     fig.savefig(out, dpi=180)
     print("wrote", out)
 
