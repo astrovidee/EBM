@@ -107,6 +107,11 @@ Climate physics
      - 1 makes the albedo of ice-free land and ocean follow the star's
        declination through the year. 0 makes it depend on latitude only.
      - 1
+   * - ``albedo_land``, ``albedo_ocean``, ``albedo_ice``
+     - ``None`` uses the model's own albedos for the host star, with the
+       zenith-angle term on ice-free land and ocean. A number gives that
+       surface one constant albedo instead, with no zenith-angle term.
+     - ``None``
    * - ``rghflag``
      - 1 fixes the outgoing radiation at 300 W/m² above 46.2 deg C, a simple
        runaway greenhouse limit

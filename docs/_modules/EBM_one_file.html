@@ -197,6 +197,12 @@
     <span class="c1"># 1 = the albedo of ice-free land and ocean follows the star's declination through the year,</span>
     <span class="c1"># as in the original MATLAB model. 0 = it depends on latitude only.</span>
     <span class="s2">"zenithflag"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="c1"># Surface albedos. None = the model's own values for the host star (see get_broadband_albedo),</span>
+    <span class="c1"># with the zenith-angle term on ice-free land and ocean. A number gives that surface one</span>
+    <span class="c1"># constant albedo instead. The FILLET protocol prescribes land 0.3, ocean 0.2, ice 0.6.</span>
+    <span class="s2">"albedo_land"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="s2">"albedo_ocean"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="s2">"albedo_ice"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
     <span class="c1"># Outgoing longwave radiation (OLR):</span>
     <span class="c1">#   "linear"  = A + B*T, with T in deg C (North &amp; Coakley 1979)</span>
     <span class="c1">#   "spiegel" = sigma*T^4 / (1 + 0.75*tau), tau = 0.79*(T/273 K)^3 (Spiegel et al. 2008)</span>
@@ -391,7 +397,8 @@
 
 <div class="viewcode-block" id="albedo_seasonal">
 <a class="viewcode-back" href="../api.html#EBM_one_file.albedo_seasonal">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">albedo_seasonal</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">A_o</span><span class="p">,</span> <span class="n">A_l</span><span class="p">,</span> <span class="n">A_50</span><span class="p">,</span> <span class="n">A_co2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">T_co2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dec</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">albedo_seasonal</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">A_o</span><span class="p">,</span> <span class="n">A_l</span><span class="p">,</span> <span class="n">A_50</span><span class="p">,</span> <span class="n">A_co2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">T_co2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dec</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                    <span class="n">land_const</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ocean_const</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Albedo of land and ocean at each latitude.</span>
 
 <span class="sd">    Ice-free surfaces use the land and ocean albedos with a dependence on the</span>
@@ -404,6 +411,9 @@
 <span class="sd">        x: sin(latitude) of each grid cell.</span>
 <span class="sd">        dec: Declination of the star in degrees on this day. It is zero all</span>
 <span class="sd">            year for a planet with zero obliquity.</span>
+<span class="sd">        land_const: If given, the albedo of ice-free land, the same at every</span>
+<span class="sd">            latitude and with no zenith-angle term.</span>
+<span class="sd">        ocean_const: The same for ice-free ocean.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        ``(alb_l, alb_w)``, the land and ocean albedo at each latitude.</span>
@@ -415,6 +425,10 @@
         <span class="n">sin2_zenith</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">zenith</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
     <span class="n">alb_w</span> <span class="o">=</span> <span class="n">A_o</span> <span class="o">+</span> <span class="mf">0.08</span> <span class="o">*</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">sin2_zenith</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="mf">0.05</span>
     <span class="n">alb_l</span> <span class="o">=</span> <span class="n">A_l</span> <span class="o">+</span> <span class="mf">0.08</span> <span class="o">*</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">sin2_zenith</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="mf">0.05</span>
+    <span class="k">if</span> <span class="n">ocean_const</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">alb_w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">alb_w</span><span class="p">,</span> <span class="n">ocean_const</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">land_const</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">alb_l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">alb_l</span><span class="p">,</span> <span class="n">land_const</span><span class="p">)</span>
 
     <span class="n">idx_w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">W</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="mi">2</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">idx_l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">L</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="mi">2</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
@@ -841,6 +855,20 @@
     <span class="n">A_l</span> <span class="o">=</span> <span class="n">broadband_params</span><span class="p">[</span><span class="s1">'A_l'</span><span class="p">]</span>
     <span class="n">A_50</span> <span class="o">=</span> <span class="n">broadband_params</span><span class="p">[</span><span class="s1">'A_50'</span><span class="p">]</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_albedo_setting</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="mf">0.0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mf">1.0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must be between 0 and 1, or None for the model's own value."</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="n">land_const</span> <span class="o">=</span> <span class="n">_albedo_setting</span><span class="p">(</span><span class="s1">'albedo_land'</span><span class="p">)</span>
+    <span class="n">ocean_const</span> <span class="o">=</span> <span class="n">_albedo_setting</span><span class="p">(</span><span class="s1">'albedo_ocean'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">_albedo_setting</span><span class="p">(</span><span class="s1">'albedo_ice'</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">A_50</span> <span class="o">=</span> <span class="n">_albedo_setting</span><span class="p">(</span><span class="s1">'albedo_ice'</span><span class="p">)</span>
+
     <span class="n">clim_alb_l</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">clim_alb_w</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">thedays</span> <span class="o">=</span> <span class="kc">None</span>
@@ -855,7 +883,8 @@
             <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">thedays</span><span class="p">:</span>
                 <span class="n">alb_l</span><span class="p">,</span> <span class="n">alb_w</span> <span class="o">=</span> <span class="n">albedo_seasonal</span><span class="p">(</span><span class="n">Lann</span><span class="p">[:,</span> <span class="n">n</span><span class="p">],</span> <span class="n">Wann</span><span class="p">[:,</span> <span class="n">n</span><span class="p">],</span> <span class="n">xfull</span><span class="p">,</span> <span class="n">A_o</span><span class="p">,</span> <span class="n">A_l</span><span class="p">,</span> <span class="n">A_50</span><span class="p">,</span>
-                                               <span class="n">dec</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">dec</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]))</span>
+                                               <span class="n">dec</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">dec</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]),</span>
+                                               <span class="n">land_const</span><span class="o">=</span><span class="n">land_const</span><span class="p">,</span> <span class="n">ocean_const</span><span class="o">=</span><span class="n">ocean_const</span><span class="p">)</span>
                 <span class="n">idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
                 <span class="n">clim_alb_l</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">alb_l</span>
                 <span class="n">clim_alb_w</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">alb_w</span>
@@ -932,6 +961,8 @@
         <span class="s1">'A_o'</span><span class="p">:</span> <span class="n">A_o</span><span class="p">,</span>
         <span class="s1">'A_l'</span><span class="p">:</span> <span class="n">A_l</span><span class="p">,</span>
         <span class="s1">'A_50'</span><span class="p">:</span> <span class="n">A_50</span><span class="p">,</span>
+        <span class="s1">'albedo_land_const'</span><span class="p">:</span> <span class="n">land_const</span><span class="p">,</span>
+        <span class="s1">'albedo_ocean_const'</span><span class="p">:</span> <span class="n">ocean_const</span><span class="p">,</span>
         <span class="s1">'olr'</span><span class="p">:</span> <span class="n">olr</span><span class="p">,</span>
         <span class="s1">'co2_ice'</span><span class="p">:</span> <span class="n">co2_ice</span><span class="p">,</span>
         <span class="s1">'A_co2'</span><span class="p">:</span> <span class="n">A_co2</span><span class="p">,</span>
@@ -1009,6 +1040,8 @@
     <span class="n">A_o</span> <span class="o">=</span> <span class="n">setup_data</span><span class="p">[</span><span class="s1">'A_o'</span><span class="p">]</span>
     <span class="n">A_l</span> <span class="o">=</span> <span class="n">setup_data</span><span class="p">[</span><span class="s1">'A_l'</span><span class="p">]</span>
     <span class="n">A_50</span> <span class="o">=</span> <span class="n">setup_data</span><span class="p">[</span><span class="s1">'A_50'</span><span class="p">]</span>
+    <span class="n">land_const</span> <span class="o">=</span> <span class="n">setup_data</span><span class="p">[</span><span class="s1">'albedo_land_const'</span><span class="p">]</span>
+    <span class="n">ocean_const</span> <span class="o">=</span> <span class="n">setup_data</span><span class="p">[</span><span class="s1">'albedo_ocean_const'</span><span class="p">]</span>
     <span class="n">A_co2</span> <span class="o">=</span> <span class="n">setup_data</span><span class="p">[</span><span class="s1">'A_co2'</span><span class="p">]</span>
     <span class="n">T_co2</span> <span class="o">=</span> <span class="n">setup_data</span><span class="p">[</span><span class="s1">'T_co2'</span><span class="p">]</span>
     <span class="n">olr</span> <span class="o">=</span> <span class="n">setup_data</span><span class="p">[</span><span class="s1">'olr'</span><span class="p">]</span>
@@ -1027,7 +1060,8 @@
             <span class="n">alb_w</span> <span class="o">=</span> <span class="n">clim_alb_w</span><span class="p">[:,</span> <span class="nb">int</span><span class="p">(</span><span class="n">thedays_setup</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">alb_l</span><span class="p">,</span> <span class="n">alb_w</span> <span class="o">=</span> <span class="n">albedo_seasonal</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">xfull</span><span class="p">,</span> <span class="n">A_o</span><span class="p">,</span> <span class="n">A_l</span><span class="p">,</span> <span class="n">A_50</span><span class="p">,</span> <span class="n">A_co2</span><span class="p">,</span> <span class="n">T_co2</span><span class="p">,</span>
-                                           <span class="n">dec</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">dec</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]))</span>
+                                           <span class="n">dec</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">dec</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]),</span>
+                                           <span class="n">land_const</span><span class="o">=</span><span class="n">land_const</span><span class="p">,</span> <span class="n">ocean_const</span><span class="o">=</span><span class="n">ocean_const</span><span class="p">)</span>
 
         <span class="n">S</span> <span class="o">=</span> <span class="n">insol</span><span class="p">[:,</span> <span class="nb">int</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
         <span class="n">rprimel</span> <span class="o">=</span> <span class="n">olr_constant</span><span class="p">(</span><span class="n">olr</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span> <span class="o">-</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alb_l</span><span class="p">)</span> <span class="o">*</span> <span class="n">S</span><span class="p">)</span>
@@ -1069,7 +1103,8 @@
             <span class="n">alb_w</span> <span class="o">=</span> <span class="n">clim_alb_w</span><span class="p">[:,</span> <span class="n">nn</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">alb_l</span><span class="p">,</span> <span class="n">alb_w</span> <span class="o">=</span> <span class="n">albedo_seasonal</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">xfull</span><span class="p">,</span> <span class="n">A_o</span><span class="p">,</span> <span class="n">A_l</span><span class="p">,</span> <span class="n">A_50</span><span class="p">,</span> <span class="n">A_co2</span><span class="p">,</span> <span class="n">T_co2</span><span class="p">,</span>
-                                           <span class="n">dec</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">dec</span><span class="p">[</span><span class="n">day_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]))</span>
+                                           <span class="n">dec</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">dec</span><span class="p">[</span><span class="n">day_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]),</span>
+                                           <span class="n">land_const</span><span class="o">=</span><span class="n">land_const</span><span class="p">,</span> <span class="n">ocean_const</span><span class="o">=</span><span class="n">ocean_const</span><span class="p">)</span>
 
         <span class="n">S</span> <span class="o">=</span> <span class="n">insol</span><span class="p">[:,</span> <span class="n">day_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
         <span class="n">ghw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">W</span> <span class="o">&gt;</span> <span class="mf">46.2</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>

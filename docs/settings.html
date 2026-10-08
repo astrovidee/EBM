@@ -285,12 +285,18 @@ circulation</p></td>
 declination through the year. 0 makes it depend on latitude only.</p></td>
 <td><p>1</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rghflag</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">albedo_land</span></code>, <code class="docutils literal notranslate"><span class="pre">albedo_ocean</span></code>, <code class="docutils literal notranslate"><span class="pre">albedo_ice</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code> uses the model’s own albedos for the host star, with the
+zenith-angle term on ice-free land and ocean. A number gives that
+surface one constant albedo instead, with no zenith-angle term.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rghflag</span></code></p></td>
 <td><p>1 fixes the outgoing radiation at 300 W/m² above 46.2 deg C, a simple
 runaway greenhouse limit</p></td>
 <td><p>0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">albedoflag</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">albedoflag</span></code></p></td>
 <td><p>1 uses a prescribed albedo climatology from a file <code class="docutils literal notranslate"><span class="pre">temperatures.mat</span></code>,
 if present, in place of the albedo feedback</p></td>
 <td><p>0</p></td>

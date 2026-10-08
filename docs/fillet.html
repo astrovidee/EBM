@@ -170,32 +170,42 @@ of S⊕ as the protocol defines it. The default is about 1353.</p></td>
 <tr class="row-odd"><td><p>Land fraction of 25%</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">land</span> <span class="pre">=</span> <span class="pre">&quot;Fillet&quot;</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p>Constant diffusion</p></td>
+<tr class="row-even"><td><p>Surface albedos of land, ocean and ice (0.3, 0.2, 0.6)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">albedo_land</span></code>, <code class="docutils literal notranslate"><span class="pre">albedo_ocean</span></code> and <code class="docutils literal notranslate"><span class="pre">albedo_ice</span></code>. Each becomes a
+constant, with no zenith-angle term.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Constant diffusion</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">hadleyflag</span> <span class="pre">=</span> <span class="pre">0</span></code> and <code class="docutils literal notranslate"><span class="pre">Dmag</span></code> set to the prescribed value</p></td>
 </tr>
-<tr class="row-odd"><td><p>Obliquity</p></td>
+<tr class="row-even"><td><p>Obliquity</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">obl</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p>Heat capacities</p></td>
+<tr class="row-odd"><td><p>Heat capacities</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Cl</span></code> and <code class="docutils literal notranslate"><span class="pre">Cw</span></code>, in W yr m⁻² K⁻¹</p></td>
 </tr>
-<tr class="row-odd"><td><p>Warm or cold start</p></td>
+<tr class="row-even"><td><p>Warm or cold start</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">coldstart</span> <span class="pre">=</span> <span class="pre">0</span></code> or <code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
 </tr>
 </tbody>
 </table>
-<p>One more setting needs a decision. With <code class="docutils literal notranslate"><span class="pre">zenithflag</span> <span class="pre">=</span> <span class="pre">1</span></code>, the default, the
-albedo of ice-free land and ocean follows the star’s declination through the
-year, as in the original MATLAB model. With <code class="docutils literal notranslate"><span class="pre">zenithflag</span> <span class="pre">=</span> <span class="pre">0</span></code> it depends on
-latitude only, as in version 1.0 of this code. The two are identical at zero
-obliquity and differ by about 2 K in the global mean at 60° obliquity. State
-which one a submission uses.</p>
+<p>The model has no atmosphere, so its surface albedo is also its planetary
+albedo. With the prescribed values an ice-free planet reflects 23% of the
+light, against about 29% for Earth, and Benchmark 2 comes out near 302 K and
+ice free. The protocol paper reports about 301 K, with no year-round ice, for
+VPLanet/POISE, which descends from the same model.</p>
+<p>Left at <code class="docutils literal notranslate"><span class="pre">None</span></code>, the three albedo settings give the model’s own
+stellar-weighted albedos. In that case <code class="docutils literal notranslate"><span class="pre">zenithflag</span></code> matters: with 1, the
+default, the albedo of ice-free land and ocean follows the star’s declination
+through the year, as in the original MATLAB model, and with 0 it depends on
+latitude only, as in version 1.0 of this code. The two differ by about 2 K in
+the global mean at 60° obliquity.</p>
 <p>A benchmark run and its outputs:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">EBM_one_file</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ebm</span>
 
 <span class="n">cfg</span> <span class="o">=</span> <span class="n">ebm</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 <span class="n">cfg</span><span class="p">[</span><span class="s2">"solar_constant"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1361.0</span>
 <span class="n">cfg</span><span class="p">[</span><span class="s2">"land"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"Fillet"</span>
+<span class="n">cfg</span><span class="p">[</span><span class="s2">"albedo_land"</span><span class="p">],</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">"albedo_ocean"</span><span class="p">],</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">"albedo_ice"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.6</span>
 <span class="n">cfg</span><span class="p">[</span><span class="s2">"obl"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">23.5</span>
 
 <span class="n">results</span> <span class="o">=</span> <span class="n">ebm</span><span class="o">.</span><span class="n">seasonal_run</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
@@ -211,9 +221,6 @@ temperature crossing that lies poleward of the sea ice.</p>
 <section id="what-the-model-cannot-do">
 <h2>What the model cannot do<a class="headerlink" href="#what-the-model-cannot-do" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p><strong>Prescribed surface albedos.</strong> The albedos of ocean, land and ice come
-from the stellar-weighted values for the host star and cannot be set. They
-stand in for a planetary albedo, because the model has no atmosphere.</p></li>
 <li><p><strong>A CO2 term in the longwave.</strong> The linear law has none. Experiment 4 needs
 a pair of <code class="docutils literal notranslate"><span class="pre">A</span></code> and <code class="docutils literal notranslate"><span class="pre">B</span></code> for each CO2 value.</p></li>
 <li><p><strong>Experiments 1a and 2a.</strong> The year is fixed at 360 time steps, so the
@@ -264,9 +271,9 @@ for a G star</p></td>
 </section>
 <section id="check-against-the-audit-s-runs">
 <h2>Check against the audit’s runs<a class="headerlink" href="#check-against-the-audit-s-runs" title="Link to this heading"></a></h2>
-<p>The audit ran this model for Benchmarks 2 and 3 with <code class="docutils literal notranslate"><span class="pre">land</span> <span class="pre">=</span> <span class="pre">&quot;Fillet&quot;</span></code> and
-the other settings at their defaults. With <code class="docutils literal notranslate"><span class="pre">zenithflag</span> <span class="pre">=</span> <span class="pre">0</span></code> the current code
-reproduces those runs:</p>
+<p>The audit ran this model for Benchmarks 2 and 3 with <code class="docutils literal notranslate"><span class="pre">land</span> <span class="pre">=</span> <span class="pre">&quot;Fillet&quot;</span></code>, the
+model’s own albedos and the other settings at their defaults. With
+<code class="docutils literal notranslate"><span class="pre">zenithflag</span> <span class="pre">=</span> <span class="pre">0</span></code> the current code reproduces those runs:</p>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 40.0%" />
@@ -296,6 +303,9 @@ reproduces those runs:</p>
 </table>
 <p>In Benchmark 2 the sea ice reaches 51.6° in both hemispheres, where the audit
 found 52° to 53°.</p>
+<p>The audit also reports that substituting the prescribed albedos into this
+model gives an ice-free planet at 302 K. The FILLET run of Benchmark 2 with
+the prescribed albedos gives 302.04 K, ice free.</p>
 </section>
 </section>
 

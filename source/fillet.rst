@@ -28,6 +28,9 @@ they map onto:
        of S⊕ as the protocol defines it. The default is about 1353.
    * - Land fraction of 25%
      - ``land = "Fillet"``
+   * - Surface albedos of land, ocean and ice (0.3, 0.2, 0.6)
+     - ``albedo_land``, ``albedo_ocean`` and ``albedo_ice``. Each becomes a
+       constant, with no zenith-angle term.
    * - Constant diffusion
      - ``hadleyflag = 0`` and ``Dmag`` set to the prescribed value
    * - Obliquity
@@ -37,12 +40,18 @@ they map onto:
    * - Warm or cold start
      - ``coldstart = 0`` or ``1``
 
-One more setting needs a decision. With ``zenithflag = 1``, the default, the
-albedo of ice-free land and ocean follows the star's declination through the
-year, as in the original MATLAB model. With ``zenithflag = 0`` it depends on
-latitude only, as in version 1.0 of this code. The two are identical at zero
-obliquity and differ by about 2 K in the global mean at 60° obliquity. State
-which one a submission uses.
+The model has no atmosphere, so its surface albedo is also its planetary
+albedo. With the prescribed values an ice-free planet reflects 23% of the
+light, against about 29% for Earth, and Benchmark 2 comes out near 302 K and
+ice free. The protocol paper reports about 301 K, with no year-round ice, for
+VPLanet/POISE, which descends from the same model.
+
+Left at ``None``, the three albedo settings give the model's own
+stellar-weighted albedos. In that case ``zenithflag`` matters: with 1, the
+default, the albedo of ice-free land and ocean follows the star's declination
+through the year, as in the original MATLAB model, and with 0 it depends on
+latitude only, as in version 1.0 of this code. The two differ by about 2 K in
+the global mean at 60° obliquity.
 
 A benchmark run and its outputs:
 
@@ -53,6 +62,7 @@ A benchmark run and its outputs:
    cfg = ebm.DEFAULTS.copy()
    cfg["solar_constant"] = 1361.0
    cfg["land"] = "Fillet"
+   cfg["albedo_land"], cfg["albedo_ocean"], cfg["albedo_ice"] = 0.3, 0.2, 0.6
    cfg["obl"] = 23.5
 
    results = ebm.seasonal_run(cfg)
@@ -67,9 +77,6 @@ temperature crossing that lies poleward of the sea ice.
 What the model cannot do
 ------------------------
 
-- **Prescribed surface albedos.** The albedos of ocean, land and ice come
-  from the stellar-weighted values for the host star and cannot be set. They
-  stand in for a planetary albedo, because the model has no atmosphere.
 - **A CO2 term in the longwave.** The linear law has none. Experiment 4 needs
   a pair of ``A`` and ``B`` for each CO2 value.
 - **Experiments 1a and 2a.** The year is fixed at 360 time steps, so the
@@ -107,9 +114,9 @@ Findings of the code audit
 Check against the audit's runs
 ------------------------------
 
-The audit ran this model for Benchmarks 2 and 3 with ``land = "Fillet"`` and
-the other settings at their defaults. With ``zenithflag = 0`` the current code
-reproduces those runs:
+The audit ran this model for Benchmarks 2 and 3 with ``land = "Fillet"``, the
+model's own albedos and the other settings at their defaults. With
+``zenithflag = 0`` the current code reproduces those runs:
 
 .. list-table::
    :header-rows: 1
@@ -130,3 +137,7 @@ reproduces those runs:
 
 In Benchmark 2 the sea ice reaches 51.6° in both hemispheres, where the audit
 found 52° to 53°.
+
+The audit also reports that substituting the prescribed albedos into this
+model gives an ice-free planet at 302 K. The FILLET run of Benchmark 2 with
+the prescribed albedos gives 302.04 K, ice free.
