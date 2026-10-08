@@ -2,9 +2,9 @@
 # Code: Shields-Bitz EBM (EBM_one_file.py, https://github.com/astrovidee/EBM), version 1.1.0
 # Grid: 120 cells of equal area (evenly spaced in sin latitude). Global means are plain means over cells.
 # Surfaces: separate land and ocean temperatures at each latitude; thermodynamic sea ice.
-# Albedo: stellar-weighted values for a G star (ocean 0.319, land 0.415, ice 0.514) with a zenith-angle term
-#   on ice-free surfaces that follows the star's declination (zenithflag = 1). The protocol's 0.3/0.2/0.6
-#   cannot be set in this model. The model has no atmosphere, so Asurf and ATOA are the same. Both are
+# Albedo: the model's own stellar-weighted values for a G star (ocean 0.319, land 0.415, ice 0.514), not the
+#   protocol's 0.2/0.3/0.6, with a zenith-angle term on ice-free surfaces that follows the star's
+#   declination (zenithflag = 1). The model has no atmosphere, so Asurf and ATOA are the same. Both are
 #   unweighted time means over the final orbit.
 # Longwave: A + B*T with T in deg C. No CO2 term (see the Experiment 4 header for how CO2 is handled there).
 # Sea ice has no heat capacity in this model (the protocol lists 1e7 J m^-2 K^-1).
