@@ -159,3 +159,9 @@ Software: https://doi.org/10.5281/zenodo.16813585. Citation metadata is in
 
 Vidya Venkatesan (Python version). The original MATLAB model is by Cecilia
 Bitz. MIT License. Questions and bug reports are welcome through GitHub issues.
+
+## Use of AI
+
+Version 1.1 was prepared with the help of Claude (Anthropic). A review of the
+FILLET model codes, run by the FILLET project lead with Claude, found the bugs
+that are fixed in this version.
